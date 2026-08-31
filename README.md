@@ -1,4 +1,4 @@
-# PetClinic — Transaction Script / CQRS Sample
+# PetClinic — Transaction Script + CQRS with Spring JDBC
 
 Another PetClinic? Yes — deliberately. It's the most recognizable teaching domain
 in the Java ecosystem, so there's no need to explain what the app does. We can go
