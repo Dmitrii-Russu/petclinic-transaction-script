@@ -1,23 +1,30 @@
 # PetClinic — Transaction Script + CQRS with Spring JDBC
 
-Another PetClinic? Yes — deliberately. It's the most recognizable teaching domain
-in the Java ecosystem, so there's no need to explain what the app does. We can go
-straight to how it's built.
+Another PetClinic? Yes — deliberately. It's the most recognizable teaching
+domain in the Java ecosystem, so there's no need to explain what the app does.
+We can go straight to how it's built.
+
+**Highlights:**
+- CQRS carried through at the **package** level, not just the class level
+- Physical layer isolation — package-private implementations, exposed only
+  through `*Factory` classes with a private constructor
+- No ORM — raw `JdbcClient`, SQL kept in `.sql` resource files
+- Single-query aggregate hydration via Postgres `jsonb_agg`/`LEFT JOIN LATERAL`
+- Two independent UIs (REST + SSR/JTE) on top of the same use cases
+- Deliberately a Transaction Script, not a rich domain model — see why below
 
 The domain is deliberately simple, with no business logic. That pushes one
-principle to the limit — "simple code is easier to develop, maintain, test, and
-read." No ORM, no public implementation sitting next to its port, and layer
-isolation enforced not only by ArchUnit tests but physically — through package
-visibility.
+principle to the limit — "simple code is easier to develop, maintain, test,
+and read."
 
 ## Why Transaction Script, not a Rich Domain Model
 
-There is no business logic in the application — only CRUD operations on owners,
-pets, and visits. A rich domain model earns its keep when there are invariants
-and behavior worth encapsulating in an entity; there's no such behavior here.
-Complicating the model for its own sake contradicts the "simple code" goal, so a
-Transaction Script was chosen instead: `Owner`, `Pet`, `Visit` are plain
-`record`s, with no methods and no state.
+There is no business logic in the application — only CRUD operations on
+owners, pets, and visits. A rich domain model earns its keep when there are
+invariants and behavior worth encapsulating in an entity; there's no such
+behavior here. Complicating the model for its own sake contradicts the
+"simple code" goal, so a Transaction Script was chosen instead: `Owner`,
+`Pet`, `Visit` are plain `record`s, with no methods and no state.
 
 ## Architecture
 
@@ -27,8 +34,8 @@ presentation  ──►  application (usecase)  ◄──  infrastructure
                      model
 ```
 
-CQRS is carried through consistently at the package level, not just at the class
-level:
+CQRS is carried through consistently at the package level, not just at the
+class level:
 
 | Layer | Package | Responsibility |
 |---|---|---|
@@ -39,14 +46,20 @@ level:
 | Presentation | `presentation.rest.*`, `presentation.ssr.*` | REST controllers (JSON) and SSR controllers (JTE templates), both on top of the same use cases. |
 | Shared | `shared.pagination`, `shared.SqlLoader` | `PageQuery`, `PageResult`, `OwnerSearchCriteria` — cross-cutting pagination/search types — and a small loader that reads `.sql` resources into constants. |
 
-Layer dependency direction is intended to be enforced by ArchUnit (dependency
-already present in `pom.xml`), on top of a physical constraint that already
-holds today: `*ServiceImpl` / `*RepositoryImpl` classes are package-private, so
-nothing outside `application.*.service` / `infrastructure.*` can reference an
-implementation directly — only the interface, exposed through the package's
-`All*Factory`.
+**What's already guaranteed vs. what's planned.** Layer isolation is enforced
+today, physically, by package-private `*ServiceImpl` / `*RepositoryImpl`
+classes: nothing outside `application.*.service` / `infrastructure.*` can even
+compile a reference to an implementation — only the interface, exposed through
+the package's `All*Factory`. This holds regardless of tooling. ArchUnit is
+listed as a dependency and is the intended way to turn this rule (plus command
+↔ query non-dependence, and "no infrastructure exception ever leaves
+`infrastructure`") into an automated regression check — those tests aren't
+written yet, so today the guarantee comes from the compiler, not from a CI
+gate.
 
 ## Key Decisions
+
+### Isolation & wiring
 
 **CQRS instead of one service per entity.** Commands and queries aren't just
 different methods on one class — they live in different packages, with
@@ -63,6 +76,15 @@ repositories, all query repositories, and so on) rather than one factory per
 entity — this keeps the physical compile-time barrier without one extra class
 per aggregate. `@Bean` methods in `infrastructure.bootstrap` return only
 interfaces, never implementations.
+
+**Use cases split into packages by action, not by a CRUD facade.** SSR exposes
+more operations than REST (separate create/edit forms, name-lookup helpers for
+forms), so instead of one "fat" service per entity, use cases are one
+interface per action (`OwnerCreateUseCase`, `OwnerUpdateUseCase`,
+`SsrOwnerEditFormUseCase`, `FindOwnerListUseCase`...). No implementation drags
+in methods it doesn't need.
+
+### Data & consistency
 
 **Validation and three invariants.** Input validation (format, required
 fields) is delegated to controllers via Jakarta Bean Validation — deliberately
@@ -103,22 +125,16 @@ each supply only their own map — the part that's genuinely different per
 entity (which constraint means what) stays local, the part that's identical
 (catching the exception, reading the SQLState/constraint name) is shared.
 
-**Models are records, exceptions are standard Java types.** `Owner`, `Pet`,
-`Visit`, and every command/view object are immutable records. There are no
-custom domain exceptions: standard Java exceptions
-(`IllegalStateException`/`IllegalArgumentException`/`NoSuchElementException`)
-plus Bean Validation exceptions are used to convey the cause of an error — the
-consuming code branches on HTTP status / exception type in REST, and the
-message text is what actually reaches the user in both REST and SSR. The
-deliberate exception to "just records" is `presentation.ssr.dto` (`OwnerFormDto`,
-`PetFormDto`, `VisitFormDto`): mutable JavaBeans with a no-arg constructor and
-setters, required by Spring MVC form binding, which cannot populate a record's
-canonical constructor from request parameters.
-
 **Identifiers are UUIDs, assigned by the application.** The id is generated in
 code (`UUID.randomUUID().toString()`) before the row is written, not by the
 database — the id is available to the caller immediately on success, without a
 follow-up query for a generated key.
+
+**Writes with no intermediate state.** Create/update operations write the data
+and immediately return the result to the caller — on success as well as on
+conflict — with no extra check queries before or after the write.
+
+### Persistence
 
 **No ORM — `JdbcClient`.** The persistence layer is built on `JdbcClient`
 (Spring 6.1+) instead of `JdbcTemplate` or JPA/Hibernate. SQL lives in
@@ -135,46 +151,52 @@ the read side to PostgreSQL-specific JSON functions; the trade-off accepted
 here is fewer classes and one round trip, in exchange for not being portable
 to another RDBMS — acceptable since PostgreSQL is the only target.
 
-**Writes with no intermediate state.** Create/update operations write the data
-and immediately return the result to the caller — on success as well as on
-conflict — with no extra check queries before or after the write.
+### Models & errors
 
-**Use cases split into packages by action, not by a CRUD facade.** SSR exposes
-more operations than REST (separate create/edit forms, name-lookup helpers for
-forms), so instead of one "fat" service per entity, use cases are one
-interface per action (`OwnerCreateUseCase`, `OwnerUpdateUseCase`,
-`SsrOwnerEditFormUseCase`, `FindOwnerListUseCase`...). No implementation drags
-in methods it doesn't need.
+**Models are records, exceptions are standard Java types.** `Owner`, `Pet`,
+`Visit`, and every command/view object are immutable records. There are no
+custom domain exceptions: standard Java exceptions
+(`IllegalStateException`/`IllegalArgumentException`/`NoSuchElementException`)
+plus Bean Validation exceptions are used to convey the cause of an error — the
+consuming code branches on HTTP status / exception type in REST, and the
+message text is what actually reaches the user in both REST and SSR. The
+deliberate exception to "just records" is `presentation.ssr.dto`
+(`OwnerFormDto`, `PetFormDto`, `VisitFormDto`): mutable JavaBeans with a no-arg
+constructor and setters, required by Spring MVC form binding, which cannot
+populate a record's canonical constructor from request parameters.
 
 **Two UIs, one core.** REST and SSR controllers are independent consumers of
 the same application use cases. Errors are handled separately, per protocol:
 REST returns RFC 9457 Problem Details (`RestExceptionHandler`), SSR re-renders
-the originating template with an error message, recovering the form state from
-a request attribute the controller set before invoking the use case.
+the originating template with an error message, recovering the form state
+from a request attribute the controller set before invoking the use case.
+
+### API design
 
 **REST responses are the query views, by design — not a temporary shortcut.**
 `RestOwnerQueryController` serializes `OwnerDetailsView` / `PageResult<OwnerListView>`
 directly as JSON, with no separate `presentation.rest.response` mapping layer.
 This is deliberate, not an omission the DTO layer will "fix" later:
 
-- Every query view already exists *because* of CQRS, not for REST's sake — it's
-  a projection built for one specific screen/use case
-  (`OwnerListView` has only what the search results table needs,
-  `OwnerDetailsView` only what the detail page needs). That's exactly the job a
-  REST response DTO would otherwise do — adding a second, hand-mapped copy of
-  the same shape wouldn't decouple anything, it would just duplicate it.
+- Every query view already exists *because* of CQRS, not for REST's sake —
+  it's a projection built for one specific screen/use case (`OwnerListView`
+  has only what the search results table needs, `OwnerDetailsView` only what
+  the detail page needs). That's exactly the job a REST response DTO would
+  otherwise do — adding a second, hand-mapped copy of the same shape wouldn't
+  decouple anything, it would just duplicate it.
 - There is no API versioning or external-consumer contract to protect here
   (a single first-party client, the SSR pages, consumes the same use cases
-  directly). An extra mapping layer earns its cost when the wire contract needs
-  to evolve independently of the read model — that trigger hasn't happened.
+  directly). An extra mapping layer earns its cost when the wire contract
+  needs to evolve independently of the read model — that trigger hasn't
+  happened.
 - The boundary that actually matters — not leaking `Owner`/`Pet`/`Visit`
   domain records or infrastructure types (`JdbcClient`, SQL exceptions) across
-  the wire — is already held: only `application.query.view` records ever reach
-  a controller, REST or SSR.
+  the wire — is already held: only `application.query.view` records ever
+  reach a controller, REST or SSR.
 
-If REST and SSR ever need genuinely different shapes for the same read (e.g. a
-mobile client wanting a slimmer payload than the HTML page), that's the signal
-to introduce a `presentation.rest.response` mapping layer — not before.
+If REST and SSR ever need genuinely different shapes for the same read (e.g.
+a mobile client wanting a slimmer payload than the HTML page), that's the
+signal to introduce a `presentation.rest.response` mapping layer — not before.
 
 **Flat routes instead of nested paths.** Controllers avoid nesting like
 `/owners/{ownerId}/pets/{petId}`: a pet is addressed as `/pets/{petId}/edit`,
@@ -273,3 +295,11 @@ direct links to a pet or visit by UUID anywhere in the interface.
 - Jackson `jsr310` datatype — `LocalDate` (de)serialization in REST JSON
 - Jakarta Bean Validation — input validation at the controller boundary
 - Lombok — `@RequiredArgsConstructor` on services/controllers
+- ArchUnit — dependency present; layer/naming rules described above are not
+  yet backed by automated tests
+
+## Status
+
+Not yet implemented: automated tests (unit/slice/integration/E2E/ArchUnit),
+CI pipeline, containerized test database (Testcontainers planned to replace
+embedded PostgreSQL for the run-time datasource).
