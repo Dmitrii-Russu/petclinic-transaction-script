@@ -1,0 +1,41 @@
+package dev.dmitriirussu.petclinic.infrastructure.command;
+
+import dev.dmitriirussu.petclinic.application.command.repository.OwnerCreateRepository;
+import dev.dmitriirussu.petclinic.infrastructure.command.support.OwnerConstraintViolationTranslator;
+import dev.dmitriirussu.petclinic.shared.SqlLoader;
+import dev.dmitriirussu.petclinic.model.Owner;
+import lombok.RequiredArgsConstructor;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.simple.JdbcClient;
+
+@RequiredArgsConstructor
+class OwnerCreateRepositoryImpl implements OwnerCreateRepository {
+    private final JdbcClient jdbc;
+    private final CacheManager cacheManager;
+    private static final String OWNER_INSERT_SQL =
+                SqlLoader.load("sql/command/owner-insert.sql");
+
+    @Override
+    public void insert(Owner owner) {
+
+        Cache cache = cacheManager.getCache("owner");
+        Owner cached = cache.get(owner.telephone(), Owner.class);
+
+        if (cached != null) {
+            throw new IllegalStateException(
+                    "Owner with this telephone already exists: " + cached.telephone()
+            );
+        }
+
+        try {
+            jdbc.sql(OWNER_INSERT_SQL).paramSource(owner).update();
+        } catch (DataIntegrityViolationException e) {
+            throw OwnerConstraintViolationTranslator.translate(e, owner);
+        }
+
+        cache.put(owner.id(), owner);
+        cache.put(owner.telephone(), owner);
+    }
+}
