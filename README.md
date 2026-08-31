@@ -1,5 +1,7 @@
 # PetClinic — Transaction Script + CQRS with Spring JDBC
 
+**A deliberately simple PetClinic clone** designed to demonstrate architectural discipline: strict layer boundaries enforced *by the compiler*, not just convention.
+
 Another PetClinic? Yes — deliberately. It's the most recognizable teaching
 domain in the Java ecosystem, so there's no need to explain what the app does.
 We can go straight to how it's built.
