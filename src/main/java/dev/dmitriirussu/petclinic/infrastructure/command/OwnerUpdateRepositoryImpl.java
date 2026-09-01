@@ -21,6 +21,17 @@ class OwnerUpdateRepositoryImpl implements OwnerUpdateRepository {
 
     @Override
     public void update(Owner owner) {
+        /*
+         * Optimistic pre-filter, not source of truth — see README
+         * "Optimistic duplicate pre-check via cache".
+         *
+         * Unlike the Create-path check, this only fires when the phone
+         * number actually changes (comparison against the cached "previous"
+         * value) — updating an owner without touching telephone must not
+         * trip the uq_owner_telephone pre-check. DB UNIQUE(telephone) remains
+         * authoritative; a cache hit here only avoids an avoidable round-trip,
+         * see: https://dmitrii-russu.github.io/posts/cache-pre-filter/
+         */
         Cache ownerCache = cacheManager.getCache("owner");
 
         Owner previous = ownerCache.get(owner.id(), Owner.class);

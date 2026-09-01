@@ -21,6 +21,14 @@ class VisitCreateRepositoryImpl implements VisitCreateRepository {
 
     @Override
     public void insert(Visit visit, String ownerId) {
+        /*
+         * Optimistic pre-filter, not source of truth — see README
+         * "Optimistic duplicate pre-check via cache".
+         *
+         * DB UNIQUE(pet_id, visit_date) remains authoritative; a cache hit
+         * here only avoids an avoidable round-trip, see:
+         * https://dmitrii-russu.github.io/posts/cache-pre-filter/
+         */
         Cache cache = cacheManager.getCache("visit");
         String cacheKey = visitCacheKey(visit.petId(), visit.visitDate());
 

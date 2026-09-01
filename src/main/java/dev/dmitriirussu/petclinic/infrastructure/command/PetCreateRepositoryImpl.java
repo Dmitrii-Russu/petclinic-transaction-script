@@ -21,14 +21,22 @@ class PetCreateRepositoryImpl implements PetCreateRepository {
 
     @Override
     public void insert(Pet pet) {
+        /*
+         * Optimistic pre-filter, not source of truth — see README
+         * "Optimistic duplicate pre-check via cache".
+         *
+         * DB UNIQUE(uq_pet_owner) remains authoritative; a cache hit here
+         * only avoids an avoidable round-trip, see:
+         * https://dmitrii-russu.github.io/posts/cache-pre-filter/
+         */
         Cache cache = cacheManager.getCache("pet");
         String cacheKey = petCacheKey(pet.ownerId(), pet.name(), pet.birthDate(), pet.type());
-
         Pet cached = cache.get(cacheKey, Pet.class);
 
         if (cached != null) {
             throw new IllegalStateException(
-                    "This owner already has such pet: " + pet.name() + " (" + pet.birthDate() + ", " + pet.type() + ")"
+                    "This owner already has such pet: " + pet.name()
+                            + " (" + pet.birthDate() + ", " + pet.type() + ")"
             );
         }
 
@@ -39,10 +47,11 @@ class PetCreateRepositoryImpl implements PetCreateRepository {
         }
 
         cache.put(cacheKey, pet);
+        cache.put(pet.id(), pet);
         cacheManager.getCache("ownerDetails").evict(pet.ownerId());
     }
 
-    private static String petCacheKey(String ownerId, String name, LocalDate birthDate, String type) {
+    static String petCacheKey(String ownerId, String name, LocalDate birthDate, String type) {
         return ownerId + "::" + name + "::" + birthDate + "::" + type;
     }
 }

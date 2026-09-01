@@ -19,7 +19,14 @@ class OwnerCreateRepositoryImpl implements OwnerCreateRepository {
 
     @Override
     public void insert(Owner owner) {
-
+        /*
+         * Optimistic pre-filter, not source of truth — see README
+         * "Optimistic duplicate pre-check via cache".
+         *
+         * DB UNIQUE(telephone) remains authoritative; a cache hit
+         * here only avoids an avoidable round-trip, see:
+         * https://dmitrii-russu.github.io/posts/cache-pre-filter/
+         */
         Cache cache = cacheManager.getCache("owner");
         Owner cached = cache.get(owner.telephone(), Owner.class);
 

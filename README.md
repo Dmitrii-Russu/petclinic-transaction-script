@@ -106,7 +106,8 @@ and doesn't protect against TOCTOU. The SQL exception is caught at the
 exception — only that exception is visible further up the call stack.
 
 **Optimistic duplicate pre-check via cache.** Before writing to the database,
-`OwnerCreateRepositoryImpl`, `PetCreateRepositoryImpl`, and
+`OwnerCreateRepositoryImpl`, `OwnerUpdateRepositoryImpl`,
+`PetCreateRepositoryImpl`, `PetUpdateRepositoryImpl`, and
 `VisitCreateRepositoryImpl` each perform a fast lookup in a Spring `Cache`
 keyed by the same business fields the unique constraint covers, to skip an
 avoidable round trip for a conflict that's already predictable. The unique
@@ -116,6 +117,17 @@ cache only reduces load on the hot path, it doesn't replace the guarantee.
 This is a per-instance optimization — with more than one running instance the
 cache won't be consistent across them, so the database constraint is what
 actually prevents a duplicate, not the cache.
+
+On the update paths (`OwnerUpdateRepositoryImpl`, `PetUpdateRepositoryImpl`),
+the cache is keyed both by id and by the business key, so the previous
+business key is available from the cache without an extra DB read, letting
+the stale entry under the old key be evicted after a successful write.
+`Visit` has no update use case, so `VisitCreateRepositoryImpl` only needs the
+single business-key entry.
+
+For the full reasoning, the failure mode of a stale positive cache entry, and
+when this pattern is a poor fit, see: [Cache as a Pre-Filter Before a
+Database Constraint](https://dmitrii-russu.github.io/posts/cache-pre-filter/).
 
 **Shared constraint-translation mechanics, per-entity mapping.** The
 try/catch/translate flow lives once, in a generic
