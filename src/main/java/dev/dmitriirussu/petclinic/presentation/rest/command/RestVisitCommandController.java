@@ -2,7 +2,7 @@ package dev.dmitriirussu.petclinic.presentation.rest.command;
 
 import dev.dmitriirussu.petclinic.application.command.usecase.VisitCreateUseCase;
 import dev.dmitriirussu.petclinic.application.command.model.CreateVisitCommand;
-import dev.dmitriirussu.petclinic.presentation.rest.request.CreateVisitRequest;
+import dev.dmitriirussu.petclinic.presentation.rest.request.VisitRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,7 +19,7 @@ public class RestVisitCommandController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createVisit(
-            @Valid @RequestBody CreateVisitRequest request,
+            @Valid @RequestBody VisitRequest request,
             HttpServletResponse response
     ) {
         String id = createVisitUseCase.createVisit(

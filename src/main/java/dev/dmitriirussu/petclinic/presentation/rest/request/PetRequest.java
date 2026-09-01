@@ -1,24 +1,22 @@
 package dev.dmitriirussu.petclinic.presentation.rest.request;
 
-import jakarta.validation.constraints.*;
-
 import java.time.LocalDate;
+import jakarta.validation.constraints.*;
+import dev.dmitriirussu.petclinic.shared.ValidationMessages;
 
-public record CreatePetRequest(
+public record PetRequest(
         @NotBlank(message = "Owner is required")
         String ownerId,
 
         @NotBlank(message = "Name is required")
         @Size(min = 1, max = 30, message = "Name must be between 1 and 30 characters")
-        @Pattern(regexp = "[\\p{L}\\p{M}\\- ]+", message = "Name must contain only letters")
+        @Pattern(regexp = ValidationMessages.NAME_REGEX, message = ValidationMessages.NAME_MESSAGE)
         String name,
 
         @NotNull(message = "Birth date is required")
-        @PastOrPresent(message = "Birth date must be in the past or present")
+        @PastOrPresent(message = ValidationMessages.BIRTH_DATE_MESSAGE)
         LocalDate birthDate,
 
         @NotBlank(message = "Type is required")
-        @Size(min = 1, max = 30, message = "Type must be between 1 and 30 characters")
-        @Pattern(regexp = "Dog|Cat|Bird|Rabbit|Hamster", message = "Invalid pet type")
         String type
 ) {}

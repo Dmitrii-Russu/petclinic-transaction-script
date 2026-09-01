@@ -1,18 +1,18 @@
 package dev.dmitriirussu.petclinic.presentation.rest.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.*;
 
-public record UpdateOwnerRequest(
+import dev.dmitriirussu.petclinic.shared.ValidationMessages;
+
+public record OwnerRequest(
         @NotBlank(message = "First name is required")
         @Size(min = 2, max = 50, message = "First name must be between 2 and 50 characters")
-        @Pattern(regexp = "[\\p{L}\\p{M}\\- ]+", message = "First name must contain only letters")
+        @Pattern(regexp = ValidationMessages.NAME_REGEX, message = ValidationMessages.NAME_MESSAGE)
         String firstName,
 
         @NotBlank(message = "Last name is required")
         @Size(min = 2, max = 50, message = "Last name must be between 2 and 50 characters")
-        @Pattern(regexp = "[\\p{L}\\p{M}\\- ]+", message = "Last name must contain only letters")
+        @Pattern(regexp = ValidationMessages.NAME_REGEX, message = ValidationMessages.NAME_MESSAGE)
         String lastName,
 
         @NotBlank(message = "Street is required")
@@ -24,6 +24,6 @@ public record UpdateOwnerRequest(
         String city,
 
         @NotBlank(message = "Telephone is required")
-        @Pattern(regexp = "^\\+?[0-9\\s()\\-]{5,19}$", message = "Invalid phone number format")
+        @Pattern(regexp = ValidationMessages.TELEPHONE_REGEX, message = ValidationMessages.TELEPHONE_MESSAGE)
         String telephone
 ) {}

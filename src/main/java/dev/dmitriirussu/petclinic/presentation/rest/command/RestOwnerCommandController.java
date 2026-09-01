@@ -4,8 +4,7 @@ import dev.dmitriirussu.petclinic.application.command.usecase.OwnerCreateUseCase
 import dev.dmitriirussu.petclinic.application.command.usecase.OwnerUpdateUseCase;
 import dev.dmitriirussu.petclinic.application.command.model.CreateOwnerCommand;
 import dev.dmitriirussu.petclinic.application.command.model.UpdateOwnerCommand;
-import dev.dmitriirussu.petclinic.presentation.rest.request.CreateOwnerRequest;
-import dev.dmitriirussu.petclinic.presentation.rest.request.UpdateOwnerRequest;
+import dev.dmitriirussu.petclinic.presentation.rest.request.OwnerRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -23,7 +22,7 @@ public class RestOwnerCommandController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createOwner(
-            @Valid @RequestBody CreateOwnerRequest request,
+            @Valid @RequestBody OwnerRequest request,
             HttpServletResponse response
     ) {
         String id = createOwnerUseCase.createOwner(
@@ -42,7 +41,7 @@ public class RestOwnerCommandController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateOwner(
             @PathVariable String id,
-            @Valid @RequestBody UpdateOwnerRequest request
+            @Valid @RequestBody OwnerRequest request
     ) {
         updateOwnerUseCase.updateOwner(new UpdateOwnerCommand(
                 id,

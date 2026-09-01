@@ -1,13 +1,13 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.dto;
 
-import jakarta.validation.constraints.*;
-
 import java.time.LocalDate;
+import jakarta.validation.constraints.*;
+import dev.dmitriirussu.petclinic.shared.ValidationMessages;
 
 public class VisitFormDto {
 
     @NotNull(message = "Date is required")
-    @FutureOrPresent(message = "Visit date must be a valid date, today or in the future")
+    @FutureOrPresent(message = ValidationMessages.VISIT_DATE_MESSAGE)
     private LocalDate date;
 
     @NotBlank(message = "Description is required")

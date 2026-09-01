@@ -7,10 +7,9 @@ import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerListView;
 import dev.dmitriirussu.petclinic.shared.pagination.OwnerSearchCriteria;
 import dev.dmitriirussu.petclinic.shared.pagination.PageQuery;
 import dev.dmitriirussu.petclinic.shared.pagination.PageResult;
+
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.*;
-
 import org.springframework.web.bind.annotation.*;
 
 @RestController

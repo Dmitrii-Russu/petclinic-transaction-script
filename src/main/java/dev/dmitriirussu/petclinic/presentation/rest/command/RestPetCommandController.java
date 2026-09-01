@@ -4,8 +4,7 @@ import dev.dmitriirussu.petclinic.application.command.usecase.PetCreateUseCase;
 import dev.dmitriirussu.petclinic.application.command.usecase.PetUpdateUseCase;
 import dev.dmitriirussu.petclinic.application.command.model.CreatePetCommand;
 import dev.dmitriirussu.petclinic.application.command.model.UpdatePetCommand;
-import dev.dmitriirussu.petclinic.presentation.rest.request.CreatePetRequest;
-import dev.dmitriirussu.petclinic.presentation.rest.request.UpdatePetRequest;
+import dev.dmitriirussu.petclinic.presentation.rest.request.PetRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +23,7 @@ public class RestPetCommandController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public void createPet(
-            @Valid @RequestBody CreatePetRequest request,
+            @Valid @RequestBody PetRequest request,
             HttpServletResponse response
     ) {
         String id = createPetUseCase.createPet(
@@ -42,7 +41,7 @@ public class RestPetCommandController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updatePet(
             @PathVariable String id,
-            @Valid @RequestBody UpdatePetRequest request
+            @Valid @RequestBody PetRequest request
     ) {
         updatePetUseCase.updatePet(new UpdatePetCommand(
                 id,

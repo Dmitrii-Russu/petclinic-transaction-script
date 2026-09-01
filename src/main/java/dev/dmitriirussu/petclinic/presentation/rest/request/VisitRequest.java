@@ -7,12 +7,14 @@ import jakarta.validation.constraints.Size;
 
 import java.time.LocalDate;
 
-public record CreateVisitRequest(
+import dev.dmitriirussu.petclinic.shared.ValidationMessages;
+
+public record VisitRequest(
         @NotBlank(message = "Pet is required")
         String petId,
 
         @NotNull(message = "Date is required")
-        @FutureOrPresent(message = "Visit date must be today or in the future")
+        @FutureOrPresent(message = ValidationMessages.VISIT_DATE_MESSAGE)
         LocalDate date,
 
         @NotBlank(message = "Description is required")
