@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.application.command.service;
 
+import dev.dmitriirussu.petclinic.application.command.model.OwnerCreateCommand;
 import dev.dmitriirussu.petclinic.application.command.usecase.OwnerCreateUseCase;
-import dev.dmitriirussu.petclinic.application.command.model.CreateOwnerCommand;
 import dev.dmitriirussu.petclinic.model.Owner;
 import dev.dmitriirussu.petclinic.application.command.repository.OwnerCreateRepository;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +12,7 @@ import java.util.UUID;
 final class OwnerCreateService implements OwnerCreateUseCase {
     private final OwnerCreateRepository repository;
 
-    public String createOwner(CreateOwnerCommand command) {
+    public String createOwner(OwnerCreateCommand command) {
         Owner owner = new Owner(
                 UUID.randomUUID().toString(),
                 command.firstName(),
@@ -21,7 +21,7 @@ final class OwnerCreateService implements OwnerCreateUseCase {
                 command.city(),
                 command.telephone()
         );
-        repository.insert(owner);
+        repository.create(owner);
         return owner.id();
     }
 }

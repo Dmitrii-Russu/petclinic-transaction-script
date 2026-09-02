@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.application.command.usecase;
 
-import dev.dmitriirussu.petclinic.application.command.model.UpdatePetCommand;
+import dev.dmitriirussu.petclinic.application.command.model.PetUpdateCommand;
 
 public interface PetUpdateUseCase {
-    void updatePet(UpdatePetCommand command);
+    void updatePet(PetUpdateCommand command);
 }

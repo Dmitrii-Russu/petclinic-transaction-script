@@ -40,24 +40,23 @@ public final class ViewExtractor {
         }
     }
 
-    // owner + pet names only
-    public static OwnerListView getOwnersWithPets(ResultSet rs, int rowNum) throws SQLException {
+    public static OwnerListView getOwnerWithPetNames(ResultSet rs, int rowNum) throws SQLException {
         String id        = rs.getString("id");
         String firstName = rs.getString("first_name");
         String lastName  = rs.getString("last_name");
         String street    = rs.getString("street");
         String city      = rs.getString("city");
-        String phone     = rs.getString("telephone");
+        String telephone = rs.getString("telephone");
 
         Array sqlArray = rs.getArray("pet_names");
-        List<String> pets = sqlArray == null
+        List<String> petNames = sqlArray == null
                 ? List.of()
                 : Arrays.asList((String[]) sqlArray.getArray());
 
-        return new OwnerListView(id, firstName, lastName, street, city, phone, pets);
+        return new OwnerListView(id, firstName, lastName, street, city, telephone, petNames);
     }
 
-    public static SsrVisitCreateView getCreateVisitForm(ResultSet rs, int rowNum) throws SQLException {
+    public static SsrVisitCreateView getVisitCreateForm(ResultSet rs, int rowNum) throws SQLException {
         try {
             List<VisitView> visits = objectMapper.readValue(
                     rs.getString("visits_json"),

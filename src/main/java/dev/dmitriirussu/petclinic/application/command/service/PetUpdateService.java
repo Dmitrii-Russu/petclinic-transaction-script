@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.application.command.service;
 
+import dev.dmitriirussu.petclinic.application.command.model.PetUpdateCommand;
 import dev.dmitriirussu.petclinic.application.command.usecase.PetUpdateUseCase;
-import dev.dmitriirussu.petclinic.application.command.model.UpdatePetCommand;
 import dev.dmitriirussu.petclinic.model.Pet;
 import dev.dmitriirussu.petclinic.application.command.repository.PetUpdateRepository;
 import lombok.RequiredArgsConstructor;
@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 final class PetUpdateService implements PetUpdateUseCase {
     private final PetUpdateRepository repository;
 
-    public void updatePet(UpdatePetCommand command) {
+    public void updatePet(PetUpdateCommand command) {
+
         repository.update(
                 new Pet(
                         command.id(),

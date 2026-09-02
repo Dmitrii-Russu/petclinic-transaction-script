@@ -16,10 +16,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
 @RequiredArgsConstructor
 @RequestMapping("/owners")
-public class SsrOwnerQueryController {
+@Controller("ssrOwnerQueryController")
+public class OwnerQueryController {
     private static final int PAGE_SIZE = 5;
 
     private final FindOwnerUseCase findOwnerUseCase;
@@ -43,14 +43,23 @@ public class SsrOwnerQueryController {
         var criteria = new OwnerSearchCriteria(lastName);
         var query = new PageQuery(page, PAGE_SIZE);
         PageResult<OwnerListView> result = findOwnerListUseCase.findOwnerList(criteria, query);
+
+        if (page > result.totalPages() && result.total() > 0) {
+            model.addAttribute("error", "Invalid page number");
+            model.addAttribute("message", "");
+            return "owner/form/main-page-search";
+        }
+
         if (result.isEmpty()) {
             model.addAttribute("error", "No owners found");
             model.addAttribute("message", "");
             return "owner/form/main-page-search";
         }
+
         if (result.total() == 1) {
             return "redirect:/owners/" + result.content().get(0).id();
         }
+
         model.addAttribute("owners", result.content());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", result.totalPages());
@@ -59,13 +68,13 @@ public class SsrOwnerQueryController {
     }
 
     // --- Details ---
-    @GetMapping("/{id}")
+    @GetMapping("/{ownerId}")
     public String showOwnerDetails(
-            @PathVariable String id,
+            @PathVariable String ownerId,
             @ModelAttribute("message") String message,
             Model model
     ) {
-        OwnerDetailsView owner = findOwnerUseCase.findOwnerById(id);
+        OwnerDetailsView owner = findOwnerUseCase.findById(ownerId);
         model.addAttribute("owner", owner);
         model.addAttribute("message", message);
         return "owner/result/owner-details";
@@ -80,11 +89,11 @@ public class SsrOwnerQueryController {
         return "owner/form/owner-create-edit-form";
     }
 
-    @GetMapping("/{id}/edit")
-    public String showEditOwnerForm(@PathVariable String id, Model model) {
-        SsrOwnerEditView view = ownerEditFormUseCase.getOwnerEditFormById(id);
+    @GetMapping("/{ownerId}/edit")
+    public String showEditOwnerForm(@PathVariable String ownerId, Model model) {
+        SsrOwnerEditView view = ownerEditFormUseCase.getOwnerEditFormByOwnerId(ownerId);
         model.addAttribute("ownerForm", OwnerFormDto.from(view));
-        model.addAttribute("ownerId", id);
+        model.addAttribute("ownerId", ownerId);
         model.addAttribute("error", "");
         return "owner/form/owner-create-edit-form";
     }

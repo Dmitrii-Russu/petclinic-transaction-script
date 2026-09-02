@@ -25,13 +25,13 @@ CREATE TABLE pets (
     birth_date DATE        NOT NULL CONSTRAINT chk_pet_birth_date_not_future CHECK (birth_date <= CURRENT_DATE),
     type       TEXT NOT NULL CONSTRAINT fk_pet_type REFERENCES pet_types(name),
     owner_id   TEXT NOT NULL CONSTRAINT fk_pet_owner REFERENCES owners(id) ON DELETE CASCADE,
-    CONSTRAINT uq_pet_owner UNIQUE (owner_id, name, birth_date, type)
+    CONSTRAINT uq_pet_identity UNIQUE (owner_id, name, birth_date, type)
 );
 
 CREATE TABLE visits (
     id          TEXT  CONSTRAINT pk_visit PRIMARY KEY,
     visit_date  DATE         NOT NULL,
-    description TEXT NOT NULL CONSTRAINT chk_visit_description_length CHECK (length(description) BETWEEN 1 AND 500),
+    description TEXT NOT NULL CONSTRAINT chk_visit_description_length CHECK (length(description) BETWEEN 1 AND 255),
     pet_id      TEXT  NOT NULL CONSTRAINT fk_visit_pet REFERENCES pets(id) ON DELETE CASCADE,
     CONSTRAINT uq_visit_pet_date UNIQUE (pet_id, visit_date)
 );

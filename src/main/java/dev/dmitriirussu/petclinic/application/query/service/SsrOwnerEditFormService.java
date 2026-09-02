@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 final class SsrOwnerEditFormService implements SsrOwnerEditFormUseCase {
     private final SsrOwnerEditFormRepository repository;
 
-    public SsrOwnerEditView getOwnerEditFormById(String id) {
-        return repository.getOwnerEditFormById(id);
+    public SsrOwnerEditView getOwnerEditFormByOwnerId(String ownerId) {
+        return repository.getOwnerEditFormByOwnerId(ownerId);
     }
 }

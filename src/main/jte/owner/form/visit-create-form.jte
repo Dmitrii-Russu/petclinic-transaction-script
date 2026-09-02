@@ -71,7 +71,7 @@
         </tr>
         @for(var visit : visitForm.visits())
             <tr>
-                <td>${visit.date().toString()}</td>
+                <td>${visit.visitDate().toString()}</td>
                 <td>${visit.description()}</td>
             </tr>
         @endfor

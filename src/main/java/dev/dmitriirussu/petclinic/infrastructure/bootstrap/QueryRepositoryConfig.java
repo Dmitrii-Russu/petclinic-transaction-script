@@ -1,9 +1,9 @@
 package dev.dmitriirussu.petclinic.infrastructure.bootstrap;
 
-import dev.dmitriirussu.petclinic.application.query.catalog.PetTypeCatalog;
+import dev.dmitriirussu.petclinic.application.query.catalog.SsrPetTypeCatalog;
 import dev.dmitriirussu.petclinic.application.query.repository.*;
 import dev.dmitriirussu.petclinic.infrastructure.query.AllQueryRepositoryFactory;
-import dev.dmitriirussu.petclinic.infrastructure.query.catalog.PetTypeCatalogReadFactory;
+import dev.dmitriirussu.petclinic.infrastructure.query.catalog.PetTypeCatalogFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -42,7 +42,7 @@ class QueryRepositoryConfig {
     }
 
     @Bean
-    PetTypeCatalog petTypeCatalog(JdbcClient jdbc) {
-        return PetTypeCatalogReadFactory.petTypeCatalog(jdbc);
+    SsrPetTypeCatalog petTypeCatalog(JdbcClient jdbc) {
+        return PetTypeCatalogFactory.petTypeCatalog(jdbc);
     }
 }

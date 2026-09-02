@@ -14,11 +14,11 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 class OwnerCreateRepositoryImpl implements OwnerCreateRepository {
     private final JdbcClient jdbc;
     private final CacheManager cacheManager;
-    private static final String OWNER_INSERT_SQL =
-                SqlLoader.load("sql/command/owner-insert.sql");
+    private static final String OWNER_CREATE_SQL =
+                SqlLoader.load("sql/command/owner-create.sql");
 
     @Override
-    public void insert(Owner owner) {
+    public void create(Owner owner) {
         /*
          * Optimistic pre-filter, not source of truth — see README
          * "Optimistic duplicate pre-check via cache".
@@ -37,7 +37,7 @@ class OwnerCreateRepositoryImpl implements OwnerCreateRepository {
         }
 
         try {
-            jdbc.sql(OWNER_INSERT_SQL).paramSource(owner).update();
+            jdbc.sql(OWNER_CREATE_SQL).paramSource(owner).update();
         } catch (DataIntegrityViolationException e) {
             throw OwnerConstraintViolationTranslator.translate(e, owner);
         }

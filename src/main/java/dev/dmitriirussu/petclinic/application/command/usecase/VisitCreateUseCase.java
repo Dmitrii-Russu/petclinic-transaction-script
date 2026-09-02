@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.application.command.usecase;
 
-import dev.dmitriirussu.petclinic.application.command.model.CreateVisitCommand;
+import dev.dmitriirussu.petclinic.application.command.model.VisitCreateCommand;
 
 public interface VisitCreateUseCase {
-    String createVisit(CreateVisitCommand command);
+    void createVisit(VisitCreateCommand command);
 }

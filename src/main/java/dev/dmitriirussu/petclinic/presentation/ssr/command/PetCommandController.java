@@ -1,10 +1,10 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.command;
 
+import dev.dmitriirussu.petclinic.application.command.model.PetCreateCommand;
+import dev.dmitriirussu.petclinic.application.command.model.PetUpdateCommand;
 import dev.dmitriirussu.petclinic.application.command.usecase.PetCreateUseCase;
 import dev.dmitriirussu.petclinic.application.command.usecase.PetUpdateUseCase;
-import dev.dmitriirussu.petclinic.application.command.model.CreatePetCommand;
-import dev.dmitriirussu.petclinic.application.command.model.UpdatePetCommand;
-import dev.dmitriirussu.petclinic.application.query.catalog.PetTypeCatalog;
+import dev.dmitriirussu.petclinic.application.query.catalog.SsrPetTypeCatalog;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.PetFormDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -17,13 +17,13 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.stream.Collectors;
 
-@Controller
 @RequiredArgsConstructor
 @RequestMapping("/pets")
-public class SsrPetCommandController {
+@Controller("ssrPetCommandController")
+public class PetCommandController {
     private final PetCreateUseCase createPetUseCase;
     private final PetUpdateUseCase updatePetUseCase;
-    private final PetTypeCatalog catalog;
+    private final SsrPetTypeCatalog catalog;
 
     @PostMapping("/new")
     public String createPet(
@@ -44,7 +44,7 @@ public class SsrPetCommandController {
         }
         request.setAttribute("petForm", petForm);
         request.setAttribute("petId", null);
-        createPetUseCase.createPet(new CreatePetCommand(
+        createPetUseCase.createPet(new PetCreateCommand(
                 petForm.getName(), petForm.getBirthDate(),
                 petForm.getType(), petForm.getOwnerId()
         ));
@@ -72,7 +72,7 @@ public class SsrPetCommandController {
         }
         request.setAttribute("petForm", petForm);
         request.setAttribute("petId", petId);
-        updatePetUseCase.updatePet(new UpdatePetCommand(
+        updatePetUseCase.updatePet(new PetUpdateCommand(
                 petId, petForm.getName(), petForm.getBirthDate(),
                 petForm.getType(), petForm.getOwnerId()
         ));

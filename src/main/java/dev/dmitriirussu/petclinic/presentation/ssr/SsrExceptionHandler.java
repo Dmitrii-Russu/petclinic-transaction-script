@@ -1,6 +1,6 @@
 package dev.dmitriirussu.petclinic.presentation.ssr;
 
-import dev.dmitriirussu.petclinic.application.query.catalog.PetTypeCatalog;
+import dev.dmitriirussu.petclinic.application.query.catalog.SsrPetTypeCatalog;
 import dev.dmitriirussu.petclinic.application.query.usecase.SsrVisitCreateFormUseCase;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.OwnerFormDto;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.PetFormDto;
@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 public class SsrExceptionHandler {
 
     private final SsrVisitCreateFormUseCase visitCreateFormUseCase;
-    private final PetTypeCatalog catalog;
+    private final SsrPetTypeCatalog catalog;
 
     @ExceptionHandler(NoSuchElementException.class)
     public String handleNotFound(NoSuchElementException ex, Model model) {
@@ -45,11 +45,16 @@ public class SsrExceptionHandler {
             return "owner/form/pet-create-edit-form";
         }
 
-        if (request.getAttribute("visitForm") instanceof VisitFormDto visitForm) {
+        if (request.getAttribute("visitForm") instanceof VisitFormDto submittedForm) {
             String petId = (String) request.getAttribute("petId");
-            model.addAttribute("visitForm", visitCreateFormUseCase.getVisitCreateFormByPetId(petId));
-            model.addAttribute("form", visitForm);
+
+            model.addAttribute(
+                    "visitForm",
+                    visitCreateFormUseCase.getVisitCreateFormByPetId(petId)
+            );
+            model.addAttribute("form", submittedForm);
             model.addAttribute("error", ex.getMessage());
+
             return "owner/form/visit-create-form";
         }
 

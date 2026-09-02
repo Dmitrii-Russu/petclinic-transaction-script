@@ -15,25 +15,25 @@ import java.util.List;
 @RequiredArgsConstructor
 class FindOwnerListRepositoryImpl implements FindOwnerListRepository {
     private final JdbcClient jdbc;
-    private static final String SEARCH_COUNT_SQL =
+    private static final String OWNER_LIST_COUNT_SQL =
             SqlLoader.load("sql/query/find-owner-list-count.sql");
-    private static final String SEARCH_LIST_PAGED_SQL =
+    private static final String OWNER_LIST_SQL =
             SqlLoader.load("sql/query/find-owner-list.sql");
 
     @Override
     public PageResult<OwnerListView> findOwnerList(OwnerSearchCriteria criteria, PageQuery query) {
         String prefix = criteria.lastNamePrefix();
 
-        long total = jdbc.sql(SEARCH_COUNT_SQL)
+        long total = jdbc.sql(OWNER_LIST_COUNT_SQL)
                 .param("lastNamePrefix", prefix)
                 .query(Long.class)
                 .single();
 
-        List<OwnerListView> content = jdbc.sql(SEARCH_LIST_PAGED_SQL)
+        List<OwnerListView> content = jdbc.sql(OWNER_LIST_SQL)
                 .param("lastNamePrefix", prefix)
                 .param("size",   query.size())
                 .param("offset", (long) (query.page() - 1) * query.size())
-                .query(ViewExtractor::getOwnersWithPets)
+                .query(ViewExtractor::getOwnerWithPetNames)
                 .list();
 
         return new PageResult<>(content, query.page(), query.size(), total);

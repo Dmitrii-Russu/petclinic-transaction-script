@@ -1,9 +1,9 @@
 package dev.dmitriirussu.petclinic.presentation.rest.command;
 
+import dev.dmitriirussu.petclinic.application.command.model.OwnerCreateCommand;
+import dev.dmitriirussu.petclinic.application.command.model.OwnerUpdateCommand;
 import dev.dmitriirussu.petclinic.application.command.usecase.OwnerCreateUseCase;
 import dev.dmitriirussu.petclinic.application.command.usecase.OwnerUpdateUseCase;
-import dev.dmitriirussu.petclinic.application.command.model.CreateOwnerCommand;
-import dev.dmitriirussu.petclinic.application.command.model.UpdateOwnerCommand;
 import dev.dmitriirussu.petclinic.presentation.rest.request.OwnerRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
@@ -12,10 +12,10 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/owners")
-public class RestOwnerCommandController {
+@RestController("restOwnerCommandController")
+public class OwnerCommandController {
     private final OwnerCreateUseCase createOwnerUseCase;
     private final OwnerUpdateUseCase updateOwnerUseCase;
 
@@ -25,8 +25,8 @@ public class RestOwnerCommandController {
             @Valid @RequestBody OwnerRequest request,
             HttpServletResponse response
     ) {
-        String id = createOwnerUseCase.createOwner(
-                new CreateOwnerCommand(
+        String ownerId = createOwnerUseCase.createOwner(
+                new OwnerCreateCommand(
                         request.firstName(),
                         request.lastName(),
                         request.street(),
@@ -34,17 +34,17 @@ public class RestOwnerCommandController {
                         request.telephone()
                 )
         );
-        response.setHeader(HttpHeaders.LOCATION, "/api/owners/" + id);
+        response.setHeader(HttpHeaders.LOCATION, "/api/owners/" + ownerId);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/{ownerId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateOwner(
-            @PathVariable String id,
+            @PathVariable String ownerId,
             @Valid @RequestBody OwnerRequest request
     ) {
-        updateOwnerUseCase.updateOwner(new UpdateOwnerCommand(
-                id,
+        updateOwnerUseCase.updateOwner(new OwnerUpdateCommand(
+                ownerId,
                 request.firstName(),
                 request.lastName(),
                 request.street(),

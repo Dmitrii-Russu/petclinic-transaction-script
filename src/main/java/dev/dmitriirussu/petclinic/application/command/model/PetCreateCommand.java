@@ -2,9 +2,10 @@ package dev.dmitriirussu.petclinic.application.command.model;
 
 import java.time.LocalDate;
 
-public record CreateVisitCommand(
-        LocalDate visitDate,
-        String description,
-        String petId,
+public record PetCreateCommand(
+        String name,
+        LocalDate birthDate,
+        String type,
         String ownerId
 ) {}
+

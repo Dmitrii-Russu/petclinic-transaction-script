@@ -1,9 +1,9 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.command;
 
+import dev.dmitriirussu.petclinic.application.command.model.OwnerCreateCommand;
+import dev.dmitriirussu.petclinic.application.command.model.OwnerUpdateCommand;
 import dev.dmitriirussu.petclinic.application.command.usecase.OwnerCreateUseCase;
 import dev.dmitriirussu.petclinic.application.command.usecase.OwnerUpdateUseCase;
-import dev.dmitriirussu.petclinic.application.command.model.CreateOwnerCommand;
-import dev.dmitriirussu.petclinic.application.command.model.UpdateOwnerCommand;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.OwnerFormDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -19,10 +19,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.stream.Collectors;
 
-@Controller
 @RequiredArgsConstructor
 @RequestMapping("/owners")
-public class SsrOwnerCommandController {
+@Controller("ssrOwnerCommandController")
+public class OwnerCommandController {
     private final OwnerCreateUseCase createOwnerUseCase;
     private final OwnerUpdateUseCase updateOwnerUseCase;
 
@@ -42,7 +42,7 @@ public class SsrOwnerCommandController {
         }
         request.setAttribute("ownerForm", ownerForm);
         request.setAttribute("ownerId", null);
-        String id = createOwnerUseCase.createOwner(new CreateOwnerCommand(
+        String id = createOwnerUseCase.createOwner(new OwnerCreateCommand(
                 ownerForm.getFirstName(), ownerForm.getLastName(),
                 ownerForm.getStreet(), ownerForm.getCity(), ownerForm.getTelephone()
         ));
@@ -50,9 +50,9 @@ public class SsrOwnerCommandController {
         return "redirect:/owners/" + id;
     }
 
-    @PostMapping("/{id}/edit")
+    @PostMapping("/{ownerId}/edit")
     public String updateOwner(
-            @PathVariable String id,
+            @PathVariable String ownerId,
             @Valid @ModelAttribute OwnerFormDto ownerForm,
             BindingResult binding,
             HttpServletRequest request,
@@ -61,18 +61,18 @@ public class SsrOwnerCommandController {
     ) {
         if (binding.hasErrors()) {
             model.addAttribute("ownerForm", ownerForm);
-            model.addAttribute("ownerId", id);
+            model.addAttribute("ownerId", ownerId);
             model.addAttribute("error", errorMessage(binding));
             return "owner/form/owner-create-edit-form";
         }
         request.setAttribute("ownerForm", ownerForm);
-        request.setAttribute("ownerId", id);
-        updateOwnerUseCase.updateOwner(new UpdateOwnerCommand(
-                id, ownerForm.getFirstName(), ownerForm.getLastName(),
+        request.setAttribute("ownerId", ownerId);
+        updateOwnerUseCase.updateOwner(new OwnerUpdateCommand(
+                ownerId, ownerForm.getFirstName(), ownerForm.getLastName(),
                 ownerForm.getStreet(), ownerForm.getCity(), ownerForm.getTelephone()
         ));
         redirectAttributes.addFlashAttribute("message", "Owner updated successfully");
-        return "redirect:/owners/" + id;
+        return "redirect:/owners/" + ownerId;
     }
 
     private static String errorMessage(BindingResult binding) {

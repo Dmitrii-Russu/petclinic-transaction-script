@@ -10,8 +10,8 @@ import org.springframework.context.annotation.Configuration;
 class CommandServiceConfig {
 
     @Bean
-    OwnerCreateUseCase createOwnerUseCase(OwnerCreateRepository insertRepository) {
-        return AllCommandServiceFactory.createOwnerUseCase(insertRepository);
+    OwnerCreateUseCase createOwnerUseCase(OwnerCreateRepository createRepository) {
+        return AllCommandServiceFactory.createOwnerUseCase(createRepository);
     }
 
     @Bean
@@ -20,8 +20,8 @@ class CommandServiceConfig {
     }
 
     @Bean
-    PetCreateUseCase createPetUseCase(PetCreateRepository insertRepository) {
-        return AllCommandServiceFactory.createPetUseCase(insertRepository);
+    PetCreateUseCase createPetUseCase(PetCreateRepository createRepository) {
+        return AllCommandServiceFactory.createPetUseCase(createRepository);
     }
 
     @Bean
@@ -30,7 +30,7 @@ class CommandServiceConfig {
     }
 
     @Bean
-    VisitCreateUseCase createVisitUseCase(VisitCreateRepository insertRepository) {
-        return AllCommandServiceFactory.createVisitUseCase(insertRepository);
+    VisitCreateUseCase createVisitUseCase(VisitCreateRepository createRepository) {
+        return AllCommandServiceFactory.createVisitUseCase(createRepository);
     }
 }

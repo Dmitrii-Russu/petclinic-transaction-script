@@ -9,7 +9,7 @@ public record OwnerListView(
         String street,
         String city,
         String telephone,
-        List<String> pets
+        List<String> petNames
 ) {
-    public OwnerListView { pets = List.copyOf(pets); }
+    public OwnerListView { petNames = List.copyOf(petNames); }
 }

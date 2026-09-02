@@ -1,7 +1,6 @@
 package dev.dmitriirussu.petclinic.application.command.model;
 
-public record UpdateOwnerCommand(
-        String id,
+public record OwnerCreateCommand(
         String firstName,
         String lastName,
         String street,

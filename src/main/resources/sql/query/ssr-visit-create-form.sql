@@ -13,7 +13,7 @@ LEFT JOIN LATERAL (
     SELECT jsonb_agg(
         jsonb_build_object(
             'id',          v.id,
-            'date',        v.visit_date,
+            'visitDate',   v.visit_date,
             'description', v.description
         ) ORDER BY v.id
     ) AS data

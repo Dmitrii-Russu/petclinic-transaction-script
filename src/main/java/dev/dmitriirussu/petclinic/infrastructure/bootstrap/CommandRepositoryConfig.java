@@ -11,7 +11,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 class CommandRepositoryConfig {
 
     @Bean
-    OwnerCreateRepository ownerInsertRepository(
+    OwnerCreateRepository ownerCreateRepository(
             JdbcClient jdbc,
             CacheManager cacheManager
     ) {
@@ -27,7 +27,7 @@ class CommandRepositoryConfig {
     }
 
     @Bean
-    PetCreateRepository petInsertRepository(
+    PetCreateRepository petCreateRepository(
             JdbcClient jdbc,
             CacheManager cacheManager
     ) {
@@ -43,7 +43,7 @@ class CommandRepositoryConfig {
     }
 
     @Bean
-    VisitCreateRepository visitInsertRepository(
+    VisitCreateRepository visitCreateRepository(
             JdbcClient jdbc,
             CacheManager cacheManager
     ) {

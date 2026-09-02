@@ -12,10 +12,10 @@ import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-@RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/owners")
-public class RestOwnerQueryController {
+@RestController("restOwnerQueryController")
+public class OwnerQueryController {
     private static final int PAGE_SIZE = 5;
 
     private final FindOwnerUseCase findOwnerUseCase;
@@ -32,8 +32,8 @@ public class RestOwnerQueryController {
         );
     }
 
-    @GetMapping("/{id}")
-    public OwnerDetailsView findById(@PathVariable String id) {
-        return findOwnerUseCase.findOwnerById(id);
+    @GetMapping("/{ownerId}")
+    public OwnerDetailsView findById(@PathVariable String ownerId) {
+        return findOwnerUseCase.findById(ownerId);
     }
 }

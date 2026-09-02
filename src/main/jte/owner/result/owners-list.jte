@@ -27,7 +27,7 @@
                     <td>${o.street()}</td>
                     <td>${o.city()}</td>
                     <td>${o.telephone()}</td>
-                    <td>${String.join(", ", o.pets())}</td>
+                    <td>${String.join(", ", o.petNames())}</td>
                 </tr>
             @endfor
             </tbody>

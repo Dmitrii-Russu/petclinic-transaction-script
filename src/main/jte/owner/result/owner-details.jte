@@ -60,7 +60,7 @@
                         </thead>
                         @for(var visit : pet.visits())
                             <tr>
-                                <td>${visit.date().toString()}</td>
+                                <td>${visit.visitDate().toString()}</td>
                                 <td>${visit.description()}</td>
                             </tr>
                         @endfor

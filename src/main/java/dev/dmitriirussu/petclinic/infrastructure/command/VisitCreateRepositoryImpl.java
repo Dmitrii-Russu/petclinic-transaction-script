@@ -16,11 +16,11 @@ import java.time.LocalDate;
 class VisitCreateRepositoryImpl implements VisitCreateRepository {
     private final JdbcClient jdbc;
     private final CacheManager cacheManager;
-    private static final String VISIT_INSERT_SQL =
-            SqlLoader.load("sql/command/visit-insert.sql");
+    private static final String VISIT_CREATE_SQL =
+            SqlLoader.load("sql/command/visit-create.sql");
 
     @Override
-    public void insert(Visit visit, String ownerId) {
+    public void create(Visit visit, String ownerId) {
         /*
          * Optimistic pre-filter, not source of truth — see README
          * "Optimistic duplicate pre-check via cache".
@@ -40,7 +40,7 @@ class VisitCreateRepositoryImpl implements VisitCreateRepository {
         }
 
         try {
-            jdbc.sql(VISIT_INSERT_SQL).paramSource(visit).update();
+            jdbc.sql(VISIT_CREATE_SQL).paramSource(visit).update();
         } catch (DataIntegrityViolationException e) {
             throw VisitConstraintViolationTranslator.translate(e, visit);
         }

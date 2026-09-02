@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 final class SsrOwnerNameService implements SsrOwnerNameUseCase {
     private final SsrOwnerNameRepository repository;
 
-    public SsrOwnerNameView getOwnerNameById(String ownerId) {
-        return repository.getOwnerNameById(ownerId);
+    public SsrOwnerNameView getOwnerNameByOwnerId(String ownerId) {
+        return repository.getOwnerNameByOwnerId(ownerId);
     }
 }

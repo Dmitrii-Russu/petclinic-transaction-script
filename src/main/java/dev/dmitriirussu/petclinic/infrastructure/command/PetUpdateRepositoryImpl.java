@@ -9,6 +9,7 @@ import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
+import java.time.LocalDate;
 import java.util.NoSuchElementException;
 
 import org.springframework.cache.Cache;
@@ -36,14 +37,15 @@ class PetUpdateRepositoryImpl implements PetUpdateRepository {
          */
         Cache cache = cacheManager.getCache("pet");
         Pet previous = cache.get(pet.id(), Pet.class);
-        boolean keyChanged = previous == null || keyFieldsChanged(previous, pet);
-
-        String newKey = PetCreateRepositoryImpl.petCacheKey(
-                pet.ownerId(), pet.name(), pet.birthDate(), pet.type());
+        String newKey = petCacheKey(pet.ownerId(), pet.name(), pet.birthDate(), pet.type());
+        String oldKey = previous != null
+                ? petCacheKey(previous.ownerId(), previous.name(), previous.birthDate(), previous.type())
+                : null;
+        boolean keyChanged = previous == null || !newKey.equals(oldKey);
 
         if (keyChanged) {
-            Pet cached = cache.get(newKey, Pet.class);
-            if (cached != null && !cached.id().equals(pet.id())) {
+            Pet cachedByKey = cache.get(newKey, Pet.class);
+            if (cachedByKey != null && !cachedByKey.id().equals(pet.id())) {
                 throw new IllegalStateException(
                         "This owner already has such pet: " + pet.name()
                                 + " (" + pet.birthDate() + ", " + pet.type() + ")"
@@ -61,8 +63,6 @@ class PetUpdateRepositoryImpl implements PetUpdateRepository {
         }
 
         if (previous != null && keyChanged) {
-            String oldKey = PetCreateRepositoryImpl.petCacheKey(
-                    previous.ownerId(), previous.name(), previous.birthDate(), previous.type());
             cache.evict(oldKey);
         }
         cache.put(newKey, pet);
@@ -72,10 +72,7 @@ class PetUpdateRepositoryImpl implements PetUpdateRepository {
         cacheManager.getCache("petEditForm").evict(pet.id());
     }
 
-    private static boolean keyFieldsChanged(Pet previous, Pet pet) {
-        return !previous.ownerId().equals(pet.ownerId())
-                || !previous.name().equals(pet.name())
-                || !previous.birthDate().equals(pet.birthDate())
-                || !previous.type().equals(pet.type());
+    static String petCacheKey(String ownerId, String name, LocalDate birthDate, String type) {
+        return ownerId + "::" + name + "::" + birthDate + "::" + type;
     }
 }

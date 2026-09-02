@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.command;
 
+import dev.dmitriirussu.petclinic.application.command.model.VisitCreateCommand;
 import dev.dmitriirussu.petclinic.application.command.usecase.VisitCreateUseCase;
-import dev.dmitriirussu.petclinic.application.command.model.CreateVisitCommand;
 import dev.dmitriirussu.petclinic.application.query.usecase.SsrVisitCreateFormUseCase;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.VisitFormDto;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,11 +15,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.stream.Collectors;
 
-@Controller
 @RequiredArgsConstructor
 @RequestMapping("/visits")
-public class SsrVisitCommandController {
-    private final VisitCreateUseCase useCase;
+@Controller("ssrVisitCommandController")
+public class VisitCommandController {
+    private final VisitCreateUseCase createVisitUseCase;
     private final SsrVisitCreateFormUseCase visitCreateFormUseCase;
 
     @PostMapping("/new")
@@ -40,7 +40,11 @@ public class SsrVisitCommandController {
         }
         request.setAttribute("visitForm", form);
         request.setAttribute("petId", petId);
-        useCase.createVisit(new CreateVisitCommand(form.getDate(), form.getDescription(), petId, ownerId));
+        createVisitUseCase.createVisit(
+                new VisitCreateCommand(
+                        form.getDate(), form.getDescription(), petId, ownerId
+                )
+        );
         redirectAttributes.addFlashAttribute("message", "Visit added successfully");
         return "redirect:/owners/" + ownerId;
     }

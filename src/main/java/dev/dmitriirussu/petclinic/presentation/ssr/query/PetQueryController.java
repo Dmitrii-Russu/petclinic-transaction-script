@@ -1,6 +1,6 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.query;
 
-import dev.dmitriirussu.petclinic.application.query.catalog.PetTypeCatalog;
+import dev.dmitriirussu.petclinic.application.query.catalog.SsrPetTypeCatalog;
 import dev.dmitriirussu.petclinic.application.query.usecase.SsrOwnerNameUseCase;
 import dev.dmitriirussu.petclinic.application.query.usecase.SsrPetEditFormUseCase;
 import dev.dmitriirussu.petclinic.application.query.view.owner.SsrOwnerNameView;
@@ -16,17 +16,17 @@ import org.springframework.web.bind.annotation.RequestParam;
 
 import java.util.List;
 
-@Controller
 @RequiredArgsConstructor
 @RequestMapping("/pets")
-public class SsrPetQueryController {
+@Controller("ssrPetQueryController")
+public class PetQueryController {
     private final SsrPetEditFormUseCase petEditFormUseCase;
     private final SsrOwnerNameUseCase ownerNameUseCase;
-    private final PetTypeCatalog catalog;
+    private final SsrPetTypeCatalog catalog;
 
     @GetMapping("/new")
     public String showNewPetForm(Model model, @RequestParam String ownerId) {
-        SsrOwnerNameView owner = ownerNameUseCase.getOwnerNameById(ownerId);
+        SsrOwnerNameView owner = ownerNameUseCase.getOwnerNameByOwnerId(ownerId);
         List<String> petTypes = catalog.getAllTypes();
         PetFormDto form = new PetFormDto();
         form.setOwnerId(ownerId);
@@ -43,7 +43,7 @@ public class SsrPetQueryController {
 
     @GetMapping("/{petId}/edit")
     public String showEditPetForm(@PathVariable String petId, Model model) {
-        SsrPetEditView pet = petEditFormUseCase.getPetEditFormById(petId);
+        SsrPetEditView pet = petEditFormUseCase.getPetEditFormByPetId(petId);
         List<String> petTypes = catalog.getAllTypes();
         model.addAttribute("ownerFirstName", pet.firstName());
         model.addAttribute("ownerLastName", pet.lastName());

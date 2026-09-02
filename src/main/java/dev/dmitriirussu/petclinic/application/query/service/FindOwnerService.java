@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 final class FindOwnerService implements FindOwnerUseCase {
     private final FindOwnerRepository repository;
 
-    public OwnerDetailsView findOwnerById(String id) {
+    public OwnerDetailsView findById(String id) {
         return repository.findById(id);
     }
 }

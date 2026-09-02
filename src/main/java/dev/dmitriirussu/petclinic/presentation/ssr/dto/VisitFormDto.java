@@ -8,7 +8,7 @@ public class VisitFormDto {
 
     @NotNull(message = "Date is required")
     @FutureOrPresent(message = ValidationMessages.VISIT_DATE_MESSAGE)
-    private LocalDate date;
+    private LocalDate visitDate;
 
     @NotBlank(message = "Description is required")
     @Size(min = 1, max = 255, message = "Description must be between 1 and 255 characters")
@@ -16,9 +16,9 @@ public class VisitFormDto {
 
     public VisitFormDto() {}
 
-    public LocalDate getDate()        { return date; }
+    public LocalDate getDate()        { return visitDate; }
     public String getDescription()    { return description; }
 
-    public void setDate(LocalDate date)             { this.date = date; }
+    public void setDate(LocalDate date)             { this.visitDate = date; }
     public void setDescription(String description)  { this.description = description; }
 }

@@ -14,7 +14,7 @@ public final class VisitConstraintViolationTranslator {
                     "uq_visit_pet_date", (error, visit, e) ->
                             new IllegalStateException("This pet already has a visit on this date", e),
                     "chk_visit_description_length", (error, visit, e) ->
-                            new IllegalArgumentException("Description must be between 1 and 500 characters", e),
+                            new IllegalArgumentException("Description must be between 1 and 255 characters", e),
                     "fk_visit_pet", (error, visit, e) ->
                             new IllegalArgumentException("Pet does not exist: " + visit.petId(), e)
             ));

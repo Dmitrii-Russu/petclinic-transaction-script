@@ -13,15 +13,15 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 class SsrVisitCreateFormRepositoryImpl implements SsrVisitCreateFormRepository {
     private final JdbcClient jdbc;
-    private static final String FIND_CREATE_VIEW_SQL =
+    private static final String VISIT_CREATE_FORM_SQL =
             SqlLoader.load("sql/query/ssr-visit-create-form.sql");
 
     @Override
     @Cacheable(cacheNames = "visitCreateForm", key = "#petId")
     public SsrVisitCreateView getVisitCreateFormByPetId(String petId) {
-        return jdbc.sql(FIND_CREATE_VIEW_SQL)
+        return jdbc.sql(VISIT_CREATE_FORM_SQL)
                 .param("petId", petId)
-                .query(ViewExtractor::getCreateVisitForm)
+                .query(ViewExtractor::getVisitCreateForm)
                 .optional()
                 .orElseThrow(() -> new NoSuchElementException("Pet not found: " + petId));
     }

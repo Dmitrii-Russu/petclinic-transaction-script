@@ -16,11 +16,11 @@ import java.time.LocalDate;
 class PetCreateRepositoryImpl implements PetCreateRepository {
     private final JdbcClient jdbc;
     private final CacheManager cacheManager;
-    private static final String PET_INSERT_SQL =
-            SqlLoader.load("sql/command/pet-insert.sql");
+    private static final String PET_CREATE_SQL =
+            SqlLoader.load("sql/command/pet-create.sql");
 
     @Override
-    public void insert(Pet pet) {
+    public void create(Pet pet) {
         /*
          * Optimistic pre-filter, not source of truth — see README
          * "Optimistic duplicate pre-check via cache".
@@ -41,13 +41,14 @@ class PetCreateRepositoryImpl implements PetCreateRepository {
         }
 
         try {
-            jdbc.sql(PET_INSERT_SQL).paramSource(pet).update();
+            jdbc.sql(PET_CREATE_SQL).paramSource(pet).update();
         } catch (DataIntegrityViolationException e) {
             throw PetConstraintViolationTranslator.translate(e, pet);
         }
 
         cache.put(cacheKey, pet);
         cache.put(pet.id(), pet);
+
         cacheManager.getCache("ownerDetails").evict(pet.ownerId());
     }
 

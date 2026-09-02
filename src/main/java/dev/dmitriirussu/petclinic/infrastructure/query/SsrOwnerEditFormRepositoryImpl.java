@@ -12,16 +12,16 @@ import java.util.NoSuchElementException;
 @RequiredArgsConstructor
 class SsrOwnerEditFormRepositoryImpl implements SsrOwnerEditFormRepository {
     private final JdbcClient jdbc;
-    private static final String FIND_EDIT_VIEW_SQL =
+    private static final String OWNER_EDIT_FORM_SQL =
             SqlLoader.load("sql/query/ssr-owner-edit-form.sql");
 
     @Override
-    @Cacheable(cacheNames = "ownerEditForm", key = "#id")
-    public SsrOwnerEditView getOwnerEditFormById(String id) {
-        return jdbc.sql(FIND_EDIT_VIEW_SQL)
-                .param("id", id)
+    @Cacheable(cacheNames = "ownerEditForm", key = "#ownerId")
+    public SsrOwnerEditView getOwnerEditFormByOwnerId(String ownerId) {
+        return jdbc.sql(OWNER_EDIT_FORM_SQL)
+                .param("ownerId", ownerId)
                 .query(SsrOwnerEditView.class)
                 .optional()
-                .orElseThrow(() -> new NoSuchElementException("Owner not found: " + id));
+                .orElseThrow(() -> new NoSuchElementException("Owner not found: " + ownerId));
     }
 }

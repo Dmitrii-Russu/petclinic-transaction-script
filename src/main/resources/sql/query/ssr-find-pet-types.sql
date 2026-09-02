@@ -1,0 +1,1 @@
+SELECT name FROM pet_types ORDER BY name

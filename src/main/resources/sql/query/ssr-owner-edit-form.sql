@@ -6,4 +6,4 @@ SELECT
     city,
     telephone
 FROM owners
-WHERE id = :id
+WHERE id = :ownerId
