@@ -7,9 +7,10 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 final class SsrVisitCreateFormService implements SsrVisitCreateFormUseCase {
+
     private final SsrVisitCreateFormRepository repository;
 
-    public SsrVisitCreateView getVisitCreateFormByPetId(String petId) {
-        return repository.getVisitCreateFormByPetId(petId);
+    public SsrVisitCreateView getVisitCreateForm(String petId) {
+        return repository.findByPetId(petId);
     }
 }

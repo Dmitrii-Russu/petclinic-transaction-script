@@ -5,7 +5,6 @@ import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerListView;
 import dev.dmitriirussu.petclinic.application.query.view.pet.PetDetailsView;
 import dev.dmitriirussu.petclinic.application.query.view.visit.SsrVisitCreateView;
 import dev.dmitriirussu.petclinic.application.query.view.visit.VisitView;
-import lombok.RequiredArgsConstructor;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -16,13 +15,12 @@ import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
-@RequiredArgsConstructor
 public final class ViewExtractor {
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
 
     public static OwnerDetailsView getOwnerDetails(ResultSet rs, int rowNum) throws SQLException {
         try {
-            List<PetDetailsView> pets = objectMapper.readValue(
+            List<PetDetailsView> pets = OBJECT_MAPPER.readValue(
                     rs.getString("pets_json"),
                     new TypeReference<List<PetDetailsView>>() {}
             );
@@ -58,7 +56,7 @@ public final class ViewExtractor {
 
     public static SsrVisitCreateView getVisitCreateForm(ResultSet rs, int rowNum) throws SQLException {
         try {
-            List<VisitView> visits = objectMapper.readValue(
+            List<VisitView> visits = OBJECT_MAPPER.readValue(
                     rs.getString("visits_json"),
                     new TypeReference<List<VisitView>>() {}
             );

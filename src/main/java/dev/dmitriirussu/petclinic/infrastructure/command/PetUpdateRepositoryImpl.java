@@ -16,6 +16,7 @@ import org.springframework.cache.Cache;
 
 @RequiredArgsConstructor
 class PetUpdateRepositoryImpl implements PetUpdateRepository {
+
     private final JdbcClient jdbc;
     private final CacheManager cacheManager;
     private static final String PET_UPDATE_SQL =

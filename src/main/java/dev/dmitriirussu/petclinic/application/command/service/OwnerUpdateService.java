@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 final class OwnerUpdateService implements OwnerUpdateUseCase {
+
     private final OwnerUpdateRepository repository;
 
     public void updateOwner(OwnerUpdateCommand command) {

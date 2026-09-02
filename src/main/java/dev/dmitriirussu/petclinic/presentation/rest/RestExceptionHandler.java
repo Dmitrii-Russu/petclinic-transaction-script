@@ -1,5 +1,6 @@
 package dev.dmitriirussu.petclinic.presentation.rest;
 
+import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -42,7 +43,7 @@ public class RestExceptionHandler {
     }
 
     @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
-    public ProblemDetail handleConstraintViolation(jakarta.validation.ConstraintViolationException ex) {
+    public ProblemDetail handleConstraintViolation(ConstraintViolationException ex) {
         return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_REQUEST, "Invalid request parameters");
     }
 

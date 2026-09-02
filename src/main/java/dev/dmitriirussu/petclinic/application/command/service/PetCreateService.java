@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 final class PetCreateService implements PetCreateUseCase {
+
     private final PetCreateRepository repository;
 
     public void createPet(PetCreateCommand command) {

@@ -3,5 +3,5 @@ package dev.dmitriirussu.petclinic.application.query.repository;
 import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerDetailsView;
 
 public interface FindOwnerRepository {
-    OwnerDetailsView findById(String id);
+    OwnerDetailsView findByOwnerId(String ownerId);
 }

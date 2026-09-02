@@ -11,13 +11,14 @@ import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 class SsrOwnerNameRepositoryImpl implements SsrOwnerNameRepository {
+
     private final JdbcClient jdbc;
     private static final String OWNER_NAME_SQL =
             SqlLoader.load("sql/query/ssr-owner-name.sql");
 
     @Override
     @Cacheable(cacheNames = "ownerName", key = "#ownerId")
-    public SsrOwnerNameView getOwnerNameByOwnerId(String ownerId) {
+    public SsrOwnerNameView findByOwnerId(String ownerId) {
         return jdbc.sql(OWNER_NAME_SQL)
                 .param("ownerId", ownerId)
                 .query(SsrOwnerNameView.class)

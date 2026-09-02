@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Controller("ssrVisitCommandController")
 public class VisitCommandController {
     private final VisitCreateUseCase createVisitUseCase;
-    private final SsrVisitCreateFormUseCase visitCreateFormUseCase;
+    private final SsrVisitCreateFormUseCase visitFormUseCase;
 
     @PostMapping("/new")
     public String createVisit(
@@ -33,7 +33,7 @@ public class VisitCommandController {
             RedirectAttributes redirectAttributes
     ) {
         if (binding.hasErrors()) {
-            model.addAttribute("visitForm", visitCreateFormUseCase.getVisitCreateFormByPetId(petId));
+            model.addAttribute("visitForm", visitFormUseCase.getVisitCreateForm(petId));
             model.addAttribute("form", form);
             model.addAttribute("error", errorMessage(binding));
             return "owner/form/visit-create-form";
@@ -42,7 +42,7 @@ public class VisitCommandController {
         request.setAttribute("petId", petId);
         createVisitUseCase.createVisit(
                 new VisitCreateCommand(
-                        form.getDate(), form.getDescription(), petId, ownerId
+                        form.getVisitDate(), form.getDescription(), petId, ownerId
                 )
         );
         redirectAttributes.addFlashAttribute("message", "Visit added successfully");

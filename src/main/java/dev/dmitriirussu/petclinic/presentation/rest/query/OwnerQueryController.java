@@ -34,6 +34,6 @@ public class OwnerQueryController {
 
     @GetMapping("/{ownerId}")
     public OwnerDetailsView findById(@PathVariable String ownerId) {
-        return findOwnerUseCase.findById(ownerId);
+        return findOwnerUseCase.findByOwnerId(ownerId);
     }
 }

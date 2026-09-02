@@ -16,9 +16,9 @@ public class VisitFormDto {
 
     public VisitFormDto() {}
 
-    public LocalDate getDate()        { return visitDate; }
-    public String getDescription()    { return description; }
+    public LocalDate getVisitDate() { return visitDate; }
+    public String getDescription()  { return description; }
 
-    public void setDate(LocalDate date)             { this.visitDate = date; }
-    public void setDescription(String description)  { this.description = description; }
+    public void setVisitDate(LocalDate visitDate)       { this.visitDate = visitDate; }
+    public void setDescription(String description) { this.description = description; }
 }

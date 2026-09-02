@@ -20,13 +20,13 @@ import java.util.List;
 @RequestMapping("/pets")
 @Controller("ssrPetQueryController")
 public class PetQueryController {
-    private final SsrPetEditFormUseCase petEditFormUseCase;
+    private final SsrPetEditFormUseCase petFormUseCase;
     private final SsrOwnerNameUseCase ownerNameUseCase;
     private final SsrPetTypeCatalog catalog;
 
     @GetMapping("/new")
     public String showNewPetForm(Model model, @RequestParam String ownerId) {
-        SsrOwnerNameView owner = ownerNameUseCase.getOwnerNameByOwnerId(ownerId);
+        SsrOwnerNameView owner = ownerNameUseCase.getOwnerName(ownerId);
         List<String> petTypes = catalog.getAllTypes();
         PetFormDto form = new PetFormDto();
         form.setOwnerId(ownerId);
@@ -43,7 +43,7 @@ public class PetQueryController {
 
     @GetMapping("/{petId}/edit")
     public String showEditPetForm(@PathVariable String petId, Model model) {
-        SsrPetEditView pet = petEditFormUseCase.getPetEditFormByPetId(petId);
+        SsrPetEditView pet = petFormUseCase.getPetEditForm(petId);
         List<String> petTypes = catalog.getAllTypes();
         model.addAttribute("ownerFirstName", pet.firstName());
         model.addAttribute("ownerLastName", pet.lastName());

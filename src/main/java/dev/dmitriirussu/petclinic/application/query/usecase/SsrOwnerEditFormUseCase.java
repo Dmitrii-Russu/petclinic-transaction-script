@@ -3,5 +3,5 @@ package dev.dmitriirussu.petclinic.application.query.usecase;
 import dev.dmitriirussu.petclinic.application.query.view.owner.SsrOwnerEditView;
 
 public interface SsrOwnerEditFormUseCase {
-    SsrOwnerEditView getOwnerEditFormByOwnerId(String ownerId);
+    SsrOwnerEditView getOwnerEditForm(String ownerId);
 }

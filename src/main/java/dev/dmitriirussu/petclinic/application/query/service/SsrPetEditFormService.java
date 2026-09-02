@@ -7,9 +7,10 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 final class SsrPetEditFormService implements SsrPetEditFormUseCase {
+
     private final SsrPetEditFormRepository repository;
 
-    public SsrPetEditView getPetEditFormByPetId(String petId) {
-        return repository.getPetEditFormByPetId(petId);
+    public SsrPetEditView getPetEditForm(String petId) {
+        return repository.findByPetId(petId);
     }
 }

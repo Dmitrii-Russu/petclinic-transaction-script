@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 final class OwnerCreateService implements OwnerCreateUseCase {
+
     private final OwnerCreateRepository repository;
 
     public String createOwner(OwnerCreateCommand command) {

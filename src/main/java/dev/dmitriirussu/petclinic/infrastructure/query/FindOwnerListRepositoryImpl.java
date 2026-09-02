@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.util.List;
 
+/** Shared across SSR and REST — see {@link dev.dmitriirussu.petclinic.application.query} for the find/get convention. */
 @RequiredArgsConstructor
 class FindOwnerListRepositoryImpl implements FindOwnerListRepository {
     private final JdbcClient jdbc;

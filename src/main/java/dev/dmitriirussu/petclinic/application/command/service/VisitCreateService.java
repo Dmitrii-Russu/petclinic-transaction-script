@@ -10,6 +10,7 @@ import java.util.UUID;
 
 @RequiredArgsConstructor
 final class VisitCreateService implements VisitCreateUseCase {
+
     private final VisitCreateRepository repository;
 
     public void createVisit(VisitCreateCommand command) {

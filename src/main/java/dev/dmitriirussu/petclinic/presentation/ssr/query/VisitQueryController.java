@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/visits")
 @Controller("ssrVisitQueryController")
 public class VisitQueryController {
-    private final SsrVisitCreateFormUseCase useCase;
+    private final SsrVisitCreateFormUseCase visitFormUseCase;
 
     @GetMapping("/new")
     public String showNewVisitForm(Model model, @RequestParam String petId) {
-        SsrVisitCreateView visitCreateView = useCase.getVisitCreateFormByPetId(petId);
+        SsrVisitCreateView visitCreateView = visitFormUseCase.getVisitCreateForm(petId);
         VisitFormDto form = new VisitFormDto();
         model.addAttribute("visitForm", visitCreateView);
         model.addAttribute("form", form);

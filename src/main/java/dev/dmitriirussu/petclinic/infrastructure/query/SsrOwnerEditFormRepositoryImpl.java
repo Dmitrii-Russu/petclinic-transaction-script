@@ -11,13 +11,14 @@ import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 class SsrOwnerEditFormRepositoryImpl implements SsrOwnerEditFormRepository {
+
     private final JdbcClient jdbc;
     private static final String OWNER_EDIT_FORM_SQL =
             SqlLoader.load("sql/query/ssr-owner-edit-form.sql");
 
     @Override
     @Cacheable(cacheNames = "ownerEditForm", key = "#ownerId")
-    public SsrOwnerEditView getOwnerEditFormByOwnerId(String ownerId) {
+    public SsrOwnerEditView findByOwnerId(String ownerId) {
         return jdbc.sql(OWNER_EDIT_FORM_SQL)
                 .param("ownerId", ownerId)
                 .query(SsrOwnerEditView.class)

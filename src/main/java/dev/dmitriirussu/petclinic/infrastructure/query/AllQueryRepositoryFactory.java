@@ -3,6 +3,13 @@ package dev.dmitriirussu.petclinic.infrastructure.query;
 import dev.dmitriirussu.petclinic.application.query.repository.*;
 import org.springframework.jdbc.core.simple.JdbcClient;
 
+/**
+ * Composition root for query repository implementations.
+ *
+ * <p>The {@code SSR-only} / {@code Shared / REST} sections below mirror
+ * the {@code find*}/{@code get*} naming convention documented in
+ * {@link dev.dmitriirussu.petclinic.application.query application.query}.
+ */
 public final class AllQueryRepositoryFactory {
 
     private AllQueryRepositoryFactory() {}

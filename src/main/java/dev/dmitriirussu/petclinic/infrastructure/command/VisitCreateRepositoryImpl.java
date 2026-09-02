@@ -14,6 +14,7 @@ import java.time.LocalDate;
 
 @RequiredArgsConstructor
 class VisitCreateRepositoryImpl implements VisitCreateRepository {
+
     private final JdbcClient jdbc;
     private final CacheManager cacheManager;
     private static final String VISIT_CREATE_SQL =

@@ -24,7 +24,7 @@ public class OwnerQueryController {
 
     private final FindOwnerUseCase findOwnerUseCase;
     private final FindOwnerListUseCase findOwnerListUseCase;
-    private final SsrOwnerEditFormUseCase ownerEditFormUseCase;
+    private final SsrOwnerEditFormUseCase ownerFormUseCase;
 
     // --- Search ---
     @GetMapping
@@ -74,7 +74,7 @@ public class OwnerQueryController {
             @ModelAttribute("message") String message,
             Model model
     ) {
-        OwnerDetailsView owner = findOwnerUseCase.findById(ownerId);
+        OwnerDetailsView owner = findOwnerUseCase.findByOwnerId(ownerId);
         model.addAttribute("owner", owner);
         model.addAttribute("message", message);
         return "owner/result/owner-details";
@@ -91,7 +91,7 @@ public class OwnerQueryController {
 
     @GetMapping("/{ownerId}/edit")
     public String showEditOwnerForm(@PathVariable String ownerId, Model model) {
-        SsrOwnerEditView view = ownerEditFormUseCase.getOwnerEditFormByOwnerId(ownerId);
+        SsrOwnerEditView view = ownerFormUseCase.getOwnerEditForm(ownerId);
         model.addAttribute("ownerForm", OwnerFormDto.from(view));
         model.addAttribute("ownerId", ownerId);
         model.addAttribute("error", "");

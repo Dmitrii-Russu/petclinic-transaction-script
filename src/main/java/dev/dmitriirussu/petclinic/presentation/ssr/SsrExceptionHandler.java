@@ -18,8 +18,8 @@ import java.util.NoSuchElementException;
 @ControllerAdvice(basePackages = "dev.dmitriirussu.petclinic.presentation.ssr")
 public class SsrExceptionHandler {
 
-    private final SsrVisitCreateFormUseCase visitCreateFormUseCase;
     private final SsrPetTypeCatalog catalog;
+    private final SsrVisitCreateFormUseCase visitFormUseCase;
 
     @ExceptionHandler(NoSuchElementException.class)
     public String handleNotFound(NoSuchElementException ex, Model model) {
@@ -50,7 +50,7 @@ public class SsrExceptionHandler {
 
             model.addAttribute(
                     "visitForm",
-                    visitCreateFormUseCase.getVisitCreateFormByPetId(petId)
+                    visitFormUseCase.getVisitCreateForm(petId)
             );
             model.addAttribute("form", submittedForm);
             model.addAttribute("error", ex.getMessage());

@@ -12,6 +12,7 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 
 @RequiredArgsConstructor
 class OwnerCreateRepositoryImpl implements OwnerCreateRepository {
+
     private final JdbcClient jdbc;
     private final CacheManager cacheManager;
     private static final String OWNER_CREATE_SQL =

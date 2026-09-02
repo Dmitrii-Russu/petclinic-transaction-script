@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 final class PetUpdateService implements PetUpdateUseCase {
+
     private final PetUpdateRepository repository;
 
     public void updatePet(PetUpdateCommand command) {

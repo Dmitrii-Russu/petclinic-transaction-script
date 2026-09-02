@@ -37,9 +37,9 @@
             <div class="form-group">
                 <label class="col-sm-2 control-label">Date</label>
                 <div class="col-sm-10">
-                    <input class="form-control" type="date" name="date"
+                    <input class="form-control" type="date" name="visitDate"
                            min="${java.time.LocalDate.now().toString()}"
-                           value="${form != null && form.getDate() != null ? form.getDate().toString() : ""}"/>
+                           value="${form != null && form.getVisitDate() != null ? form.getVisitDate().toString() : ""}"/>
                 </div>
             </div>
 

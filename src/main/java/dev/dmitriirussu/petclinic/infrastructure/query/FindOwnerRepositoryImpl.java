@@ -10,6 +10,11 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.util.NoSuchElementException;
 
+/**
+ * {@link dev.dmitriirussu.petclinic.application.query}
+ */
+
+/** Shared across SSR and REST — see {@link dev.dmitriirussu.petclinic.application.query} for the find/get convention. */
 @RequiredArgsConstructor
 class FindOwnerRepositoryImpl implements FindOwnerRepository {
     private final JdbcClient jdbc;
@@ -17,10 +22,10 @@ class FindOwnerRepositoryImpl implements FindOwnerRepository {
             SqlLoader.load("sql/query/find-owner.sql");
 
     @Override
-    @Cacheable(cacheNames = "ownerDetails", key = "#id")
-    public OwnerDetailsView findById(String id) {
+    @Cacheable(cacheNames = "ownerDetails", key = "#ownerId")
+    public OwnerDetailsView findByOwnerId(String ownerId) {
         return jdbc.sql(OWNER_DETAILS_SQL)
-                .param("id", id)
+                .param("ownerId", ownerId)
                 .query(ViewExtractor::getOwnerDetails)
                 .optional()
                 .orElseThrow(() -> new NoSuchElementException("Owner not found"));

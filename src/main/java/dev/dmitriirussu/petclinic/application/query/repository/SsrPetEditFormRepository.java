@@ -3,5 +3,5 @@ package dev.dmitriirussu.petclinic.application.query.repository;
 import dev.dmitriirussu.petclinic.application.query.view.pet.SsrPetEditView;
 
 public interface SsrPetEditFormRepository {
-    SsrPetEditView getPetEditFormByPetId(String petId);
+    SsrPetEditView findByPetId(String petId);
 }

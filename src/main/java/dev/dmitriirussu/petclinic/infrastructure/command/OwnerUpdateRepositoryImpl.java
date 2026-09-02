@@ -14,6 +14,7 @@ import java.util.NoSuchElementException;
 
 @RequiredArgsConstructor
 class OwnerUpdateRepositoryImpl implements OwnerUpdateRepository {
+
     private final JdbcClient jdbc;
     private final CacheManager cacheManager;
     private static final String OWNER_UPDATE_SQL =

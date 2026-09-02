@@ -10,15 +10,17 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 
 import java.util.NoSuchElementException;
 
+
 @RequiredArgsConstructor
 class SsrVisitCreateFormRepositoryImpl implements SsrVisitCreateFormRepository {
+
     private final JdbcClient jdbc;
     private static final String VISIT_CREATE_FORM_SQL =
             SqlLoader.load("sql/query/ssr-visit-create-form.sql");
 
     @Override
     @Cacheable(cacheNames = "visitCreateForm", key = "#petId")
-    public SsrVisitCreateView getVisitCreateFormByPetId(String petId) {
+    public SsrVisitCreateView findByPetId(String petId) {
         return jdbc.sql(VISIT_CREATE_FORM_SQL)
                 .param("petId", petId)
                 .query(ViewExtractor::getVisitCreateForm)
