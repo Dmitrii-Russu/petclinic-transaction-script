@@ -26,4 +26,4 @@ LEFT JOIN LATERAL (
     ) visits ON true
     WHERE p.owner_id = o.id
 ) pets ON true
-WHERE o.id = :ownerId
+WHERE o.id = :id

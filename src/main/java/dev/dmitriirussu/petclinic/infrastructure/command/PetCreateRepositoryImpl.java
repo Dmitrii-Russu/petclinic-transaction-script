@@ -2,7 +2,7 @@ package dev.dmitriirussu.petclinic.infrastructure.command;
 
 import dev.dmitriirussu.petclinic.application.command.repository.PetCreateRepository;
 import dev.dmitriirussu.petclinic.infrastructure.command.support.PetConstraintViolationTranslator;
-import dev.dmitriirussu.petclinic.shared.SqlLoader;
+import dev.dmitriirussu.petclinic.infrastructure.SqlLoader;
 import dev.dmitriirussu.petclinic.model.Pet;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;
@@ -26,7 +26,7 @@ class PetCreateRepositoryImpl implements PetCreateRepository {
          * Optimistic pre-filter, not source of truth — see README
          * "Optimistic duplicate pre-check via cache".
          *
-         * DB UNIQUE(uq_pet_owner) remains authoritative; a cache hit here
+         * DB UNIQUE(uq_pet_identity) remains authoritative; a cache hit here
          * only avoids an avoidable round-trip, see:
          * https://dmitrii-russu.github.io/posts/cache-pre-filter/
          */

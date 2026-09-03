@@ -1,8 +1,17 @@
 package dev.dmitriirussu.petclinic.infrastructure.bootstrap;
 
 import dev.dmitriirussu.petclinic.application.query.repository.*;
-import dev.dmitriirussu.petclinic.application.query.service.AllQueryServiceFactory;
+import dev.dmitriirussu.petclinic.application.query.repository.ssr.OwnerEditFormRepository;
+import dev.dmitriirussu.petclinic.application.query.repository.ssr.OwnerNameRepository;
+import dev.dmitriirussu.petclinic.application.query.repository.ssr.PetEditFormRepository;
+import dev.dmitriirussu.petclinic.application.query.repository.ssr.VisitCreateFormRepository;
+import dev.dmitriirussu.petclinic.application.query.service.QueryServiceFactory;
+import dev.dmitriirussu.petclinic.application.query.service.ssr.SsrQueryServiceFactory;
 import dev.dmitriirussu.petclinic.application.query.usecase.*;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.OwnerEditFormUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.OwnerNameUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.PetEditFormUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.VisitCreateFormUseCase;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -10,32 +19,32 @@ import org.springframework.context.annotation.Configuration;
 class QueryServiceConfig {
 
     @Bean
-    FindOwnerUseCase findOwnerUseCase(FindOwnerRepository repository) {
-        return AllQueryServiceFactory.findOwnerUseCase(repository);
+    OwnerFindUseCase ownerFindUseCase(OwnerFindRepository repository) {
+        return QueryServiceFactory.ownerFindUseCase(repository);
     }
 
     @Bean
-    FindOwnerListUseCase findOwnerListUseCase(FindOwnerListRepository repository) {
-        return AllQueryServiceFactory.findOwnerListUseCase(repository);
+    OwnerSearchUseCase ownerSearchUseCase(OwnerSearchRepository repository) {
+        return QueryServiceFactory.ownerSearchUseCase(repository);
     }
 
     @Bean
-    SsrOwnerEditFormUseCase ssrOwnerEditFormUseCase(SsrOwnerEditFormRepository repository) {
-        return AllQueryServiceFactory.ssrOwnerEditFormUseCase(repository);
+    OwnerEditFormUseCase ssrOwnerEditFormUseCase(OwnerEditFormRepository repository) {
+        return SsrQueryServiceFactory.ownerEditFormUseCase(repository);
     }
 
     @Bean
-    SsrOwnerNameUseCase ssrOwnerNameUseCase(SsrOwnerNameRepository repository) {
-        return AllQueryServiceFactory.ssrOwnerNameUseCase(repository);
+    OwnerNameUseCase ssrOwnerNameUseCase(OwnerNameRepository repository) {
+        return SsrQueryServiceFactory.ownerNameUseCase(repository);
     }
 
     @Bean
-    SsrPetEditFormUseCase ssrPetEditFormUseCase(SsrPetEditFormRepository repository) {
-        return AllQueryServiceFactory.ssrPetEditFormUseCase(repository);
+    PetEditFormUseCase ssrPetEditFormUseCase(PetEditFormRepository repository) {
+        return SsrQueryServiceFactory.petEditFormUseCase(repository);
     }
 
     @Bean
-    SsrVisitCreateFormUseCase ssrVisitCreateFormUseCase(SsrVisitCreateFormRepository repository) {
-        return AllQueryServiceFactory.ssrVisitCreateFormUseCase(repository);
+    VisitCreateFormUseCase ssrVisitCreateFormUseCase(VisitCreateFormRepository repository) {
+        return SsrQueryServiceFactory.visitCreateFormUseCase(repository);
     }
 }

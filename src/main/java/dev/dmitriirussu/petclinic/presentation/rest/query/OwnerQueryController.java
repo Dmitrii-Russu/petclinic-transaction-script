@@ -1,10 +1,10 @@
 package dev.dmitriirussu.petclinic.presentation.rest.query;
 
-import dev.dmitriirussu.petclinic.application.query.usecase.FindOwnerListUseCase;
-import dev.dmitriirussu.petclinic.application.query.usecase.FindOwnerUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.OwnerFindUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.OwnerSearchUseCase;
 import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerDetailsView;
 import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerListView;
-import dev.dmitriirussu.petclinic.shared.pagination.OwnerSearchCriteria;
+import dev.dmitriirussu.petclinic.application.query.OwnerSearchCriteria;
 import dev.dmitriirussu.petclinic.shared.pagination.PageQuery;
 import dev.dmitriirussu.petclinic.shared.pagination.PageResult;
 
@@ -18,22 +18,22 @@ import org.springframework.web.bind.annotation.*;
 public class OwnerQueryController {
     private static final int PAGE_SIZE = 5;
 
-    private final FindOwnerUseCase findOwnerUseCase;
-    private final FindOwnerListUseCase findOwnerListUseCase;
+    private final OwnerFindUseCase ownerFindUseCase;
+    private final OwnerSearchUseCase ownerSearchUseCase;
 
     @GetMapping
-    public PageResult<OwnerListView> findAll(
+    public PageResult<OwnerListView> search(
             @RequestParam(required = false) String lastName,
             @RequestParam(defaultValue = "1") @Min(1) int page
     ) {
-        return findOwnerListUseCase.findOwnerList(
+        return ownerSearchUseCase.search(
                 new OwnerSearchCriteria(lastName),
                 new PageQuery(page, PAGE_SIZE)
         );
     }
 
-    @GetMapping("/{ownerId}")
-    public OwnerDetailsView findById(@PathVariable String ownerId) {
-        return findOwnerUseCase.findByOwnerId(ownerId);
+    @GetMapping("/{id}")
+    public OwnerDetailsView findById(@PathVariable String id) {
+        return ownerFindUseCase.findById(id);
     }
 }

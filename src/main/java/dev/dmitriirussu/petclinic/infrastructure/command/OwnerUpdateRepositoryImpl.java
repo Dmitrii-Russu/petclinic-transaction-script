@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.infrastructure.command;
 
 import dev.dmitriirussu.petclinic.infrastructure.command.support.OwnerConstraintViolationTranslator;
-import dev.dmitriirussu.petclinic.shared.SqlLoader;
+import dev.dmitriirussu.petclinic.infrastructure.SqlLoader;
 import dev.dmitriirussu.petclinic.model.Owner;
 import dev.dmitriirussu.petclinic.application.command.repository.OwnerUpdateRepository;
 import lombok.RequiredArgsConstructor;

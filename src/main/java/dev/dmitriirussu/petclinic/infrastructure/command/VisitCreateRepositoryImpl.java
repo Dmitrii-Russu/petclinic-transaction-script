@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.infrastructure.command;
 
 import dev.dmitriirussu.petclinic.infrastructure.command.support.VisitConstraintViolationTranslator;
-import dev.dmitriirussu.petclinic.shared.SqlLoader;
+import dev.dmitriirussu.petclinic.infrastructure.SqlLoader;
 import dev.dmitriirussu.petclinic.model.Visit;
 import dev.dmitriirussu.petclinic.application.command.repository.VisitCreateRepository;
 import lombok.RequiredArgsConstructor;

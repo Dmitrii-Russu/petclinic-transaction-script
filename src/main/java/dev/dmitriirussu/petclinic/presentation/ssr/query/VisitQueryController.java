@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.query;
 
-import dev.dmitriirussu.petclinic.application.query.usecase.SsrVisitCreateFormUseCase;
-import dev.dmitriirussu.petclinic.application.query.view.visit.SsrVisitCreateView;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.VisitCreateFormUseCase;
+import dev.dmitriirussu.petclinic.application.query.view.visit.ssr.VisitCreateView;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.VisitFormDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -14,11 +14,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("/visits")
 @Controller("ssrVisitQueryController")
 public class VisitQueryController {
-    private final SsrVisitCreateFormUseCase visitFormUseCase;
+    private final VisitCreateFormUseCase visitFormUseCase;
 
     @GetMapping("/new")
     public String showNewVisitForm(Model model, @RequestParam String petId) {
-        SsrVisitCreateView visitCreateView = visitFormUseCase.getVisitCreateForm(petId);
+        VisitCreateView visitCreateView = visitFormUseCase.findVisitCreateForm(petId);
         VisitFormDto form = new VisitFormDto();
         model.addAttribute("visitForm", visitCreateView);
         model.addAttribute("form", form);

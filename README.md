@@ -42,17 +42,17 @@ class level:
 | Layer | Package | Responsibility |
 |---|---|---|
 | Model | `model` | `Owner`, `Pet`, `Visit` — records with no outward dependencies. |
-| Application / command | `application.command.usecase` / `.model` / `.repository` | Write use cases (`OwnerCreateUseCase`, `PetUpdateUseCase`, `VisitCreateUseCase`, ...), commands, and write ports. |
-| Application / query | `application.query.usecase` / `.repository` / `.view` / `.catalog` | Read use cases, read ports, and view models tailored to a specific screen (`OwnerDetailsView`, `OwnerListView`, `SsrPetEditView`, `SsrVisitCreateView`...). |
-| Infrastructure | `infrastructure.command`, `infrastructure.query`, `infrastructure.query.catalog`, `infrastructure.bootstrap` | JDBC adapters via `JdbcClient` (no ORM), plus Spring wiring (`@Configuration` classes exposing only interfaces as beans). |
+| Application / command | `application.command.usecase` / `.model` / `.repository` / `.service` | Write use cases (`OwnerCreateUseCase`, `PetUpdateUseCase`, `VisitCreateUseCase`, ...), commands (`OwnerCreateCommand`, `PetUpdateCommand`, ...), write ports, and package-private service impls. No SSR/REST split — writes are shared by both UIs. |
+| Application / query | `application.query.usecase(.ssr)` / `.repository(.ssr)` / `.view.{owner,pet,visit}(.ssr)` / `.catalog.ssr` / `.service(.ssr)` | Read use cases, read ports, and view models tailored to a specific screen. The base packages hold what both UIs share (`OwnerFindUseCase`, `OwnerSearchUseCase`, `OwnerDetailsView`, `OwnerListView`); the `.ssr` sub-packages hold what only the SSR forms need (`OwnerEditFormUseCase`, `PetEditFormUseCase`, `VisitCreateFormUseCase`, `OwnerNameUseCase`, and their matching views/repositories/catalog). |
+| Infrastructure | `infrastructure.command(.support)`, `infrastructure.query(.ssr)(.support)`, `infrastructure.query.catalog.ssr`, `infrastructure.bootstrap` | JDBC adapters via `JdbcClient` (no ORM), mirroring the same base/`.ssr` split as the query side, plus Spring wiring (`@Configuration` classes exposing only interfaces as beans). |
 | Presentation | `presentation.rest.*`, `presentation.ssr.*` | REST controllers (JSON) and SSR controllers (JTE templates), both on top of the same use cases. |
-| Shared | `shared.pagination`, `shared.SqlLoader` | `PageQuery`, `PageResult`, `OwnerSearchCriteria` — cross-cutting pagination/search types — and a small loader that reads `.sql` resources into constants. |
+| Shared | `shared.pagination`, `shared.ValidationMessages`, `shared.SqlLoader` | `PageQuery`, `PageResult`, `OwnerSearchCriteria` — cross-cutting pagination/search types — shared Bean Validation regex/message constants, and a small loader that reads `.sql` resources into constants. |
 
 **What's already guaranteed vs. what's planned.** Layer isolation is enforced
 today, physically, by package-private `*ServiceImpl` / `*RepositoryImpl`
 classes: nothing outside `application.*.service` / `infrastructure.*` can even
 compile a reference to an implementation — only the interface, exposed through
-the package's `All*Factory`. This holds regardless of tooling. ArchUnit is
+the package's `*Factory`. This holds regardless of tooling. ArchUnit is
 listed as a dependency and is the intended way to turn this rule (plus command
 ↔ query non-dependence, and "no infrastructure exception ever leaves
 `infrastructure`") into an automated regression check — those tests aren't
@@ -66,25 +66,34 @@ gate.
 **CQRS instead of one service per entity.** Commands and queries aren't just
 different methods on one class — they live in different packages, with
 different use cases, different repositories, and different view models.
-`FindOwnerUseCase` and `OwnerCreateUseCase` know nothing about each other.
+`OwnerFindUseCase` and `OwnerCreateUseCase` know nothing about each other.
 
 **Layer isolation via package visibility, not discipline alone.** Following a
 zero-trust principle toward developer discipline, `*ServiceImpl` and
 `*RepositoryImpl` are declared without `public`. Only the interface is visible
-outside the package — exposed by one public class per package,
-`All<Command|Query><Repository|Service>Factory`, each with a private
-constructor. One factory covers every entity on its side of CQRS (all command
-repositories, all query repositories, and so on) rather than one factory per
-entity — this keeps the physical compile-time barrier without one extra class
-per aggregate. `@Bean` methods in `infrastructure.bootstrap` return only
-interfaces, never implementations.
+outside the package — exposed by one public factory class per package, with a
+private constructor: `CommandRepositoryFactory`, `CommandServiceFactory`,
+`QueryRepositoryFactory`, `QueryServiceFactory`, and — because the query side
+is itself split into a base part and an SSR-only part —
+`SsrQueryRepositoryFactory`, `SsrQueryServiceFactory`, and
+`PetTypeCatalogFactory` for the catalog. One factory covers every entity in
+its package (all command repositories together, all base query repositories
+together, all SSR query repositories together, and so on) rather than one
+factory per entity — this keeps the physical compile-time barrier without one
+extra class per aggregate. `@Bean` methods in `infrastructure.bootstrap`
+(`CommandRepositoryConfig`, `CommandServiceConfig`, `QueryRepositoryConfig`,
+`QueryServiceConfig`) return only interfaces, never implementations.
 
 **Use cases split into packages by action, not by a CRUD facade.** SSR exposes
 more operations than REST (separate create/edit forms, name-lookup helpers for
 forms), so instead of one "fat" service per entity, use cases are one
 interface per action (`OwnerCreateUseCase`, `OwnerUpdateUseCase`,
-`SsrOwnerEditFormUseCase`, `FindOwnerListUseCase`...). No implementation drags
-in methods it doesn't need.
+`OwnerSearchUseCase`, `OwnerEditFormUseCase`, ...). No implementation drags in
+methods it doesn't need. The SSR-only use cases (`OwnerEditFormUseCase`,
+`OwnerNameUseCase`, `PetEditFormUseCase`, `VisitCreateFormUseCase`) live in
+`application.query.usecase.ssr`, physically separate from the ones REST also
+consumes — the package they're in is what marks them as SSR-specific, not a
+naming prefix on the class.
 
 ### Data & consistency
 
@@ -95,7 +104,7 @@ constraints, each an existence/uniqueness check rather than real business
 logic:
 - an owner's phone number must be unique (`owners.telephone UNIQUE`);
 - an owner cannot have two identical pets — equality by fields, not id
-  (`uq_pet_owner UNIQUE(owner_id, name, birth_date, type)`);
+  (`uq_pet_identity UNIQUE(owner_id, name, birth_date, type)`);
 - a pet cannot have two visits on the same date
   (`uq_visit_pet_date UNIQUE(pet_id, visit_date)`).
 
@@ -184,13 +193,21 @@ the same application use cases. Errors are handled separately, per protocol:
 REST returns RFC 9457 Problem Details (`RestExceptionHandler`), SSR re-renders
 the originating template with an error message, recovering the form state
 from a request attribute the controller set before invoking the use case.
+REST and SSR each have their own `OwnerCommandController`/`PetCommandController`/
+`VisitCommandController`/`OwnerQueryController` — same simple class name on
+both sides, disambiguated by package (`presentation.rest.*` vs.
+`presentation.ssr.*`) and by the Spring bean name given in the `@Controller`/
+`@RestController` annotation (e.g. `"restOwnerCommandController"` vs.
+`"ssrOwnerCommandController"`), rather than by a `Rest`/`Ssr` class-name
+prefix.
 
 ### API design
 
 **REST responses are the query views, by design — not a temporary shortcut.**
-`RestOwnerQueryController` serializes `OwnerDetailsView` / `PageResult<OwnerListView>`
-directly as JSON, with no separate `presentation.rest.response` mapping layer.
-This is deliberate, not an omission the DTO layer will "fix" later:
+`presentation.rest.query.OwnerQueryController` serializes `OwnerDetailsView` /
+`PageResult<OwnerListView>` directly as JSON, with no separate
+`presentation.rest.response` mapping layer. This is deliberate, not an
+omission the DTO layer will "fix" later:
 
 - Every query view already exists *because* of CQRS, not for REST's sake —
   it's a projection built for one specific screen/use case (`OwnerListView`
@@ -205,12 +222,19 @@ This is deliberate, not an omission the DTO layer will "fix" later:
   happened.
 - The boundary that actually matters — not leaking `Owner`/`Pet`/`Visit`
   domain records or infrastructure types (`JdbcClient`, SQL exceptions) across
-  the wire — is already held: only `application.query.view` records ever
+  the wire — is already held: only `application.query.view.*` records ever
   reach a controller, REST or SSR.
 
 If REST and SSR ever need genuinely different shapes for the same read (e.g.
 a mobile client wanting a slimmer payload than the HTML page), that's the
 signal to introduce a `presentation.rest.response` mapping layer — not before.
+
+**One request record shared by create and update.** `OwnerRequest`,
+`PetRequest`, and `VisitRequest` (`presentation.rest.request`) are each used
+for both the create and the update endpoint of their entity — there's no
+separate `CreateOwnerRequest`/`UpdateOwnerRequest` pair, since the two
+operations validate and carry the same fields; only the command built from the
+request differs (`OwnerCreateCommand` vs. `OwnerUpdateCommand`).
 
 **Flat routes instead of nested paths.** Controllers avoid nesting like
 `/owners/{ownerId}/pets/{petId}`: a pet is addressed as `/pets/{petId}/edit`,
@@ -222,42 +246,60 @@ readable as part of the owner aggregate.
 
 ```
 src/main/java/.../petclinic/
+├── PetclinicApplication.java       # @SpringBootApplication + @EnableCaching, main entry point
 ├── model/                          # Owner, Pet, Visit — records, no outward dependencies
 ├── application/
 │   ├── command/
-│   │   ├── usecase/                # OwnerCreateUseCase, PetUpdateUseCase, VisitCreateUseCase...
-│   │   ├── model/                  # CreateOwnerCommand, UpdatePetCommand...
-│   │   ├── repository/             # write ports: OwnerCreateRepository, PetUpdateRepository...
-│   │   └── service/                # package-private impls, exposed via AllCommandServiceFactory
+│   │   ├── usecase/                # OwnerCreateUseCase, OwnerUpdateUseCase, PetCreateUseCase, PetUpdateUseCase, VisitCreateUseCase
+│   │   ├── model/                  # OwnerCreateCommand, OwnerUpdateCommand, PetCreateCommand, PetUpdateCommand, VisitCreateCommand
+│   │   ├── repository/             # write ports: OwnerCreateRepository, OwnerUpdateRepository, PetCreateRepository, PetUpdateRepository, VisitCreateRepository
+│   │   └── service/                # package-private impls, exposed via CommandServiceFactory
 │   └── query/
-│       ├── usecase/                # FindOwnerUseCase, FindOwnerListUseCase, SsrPetEditFormUseCase...
-│       ├── view/                   # OwnerDetailsView, OwnerListView, SsrPetEditView, SsrVisitCreateView...
-│       ├── repository/             # read ports: FindOwnerRepository, SsrOwnerEditFormRepository...
-│       ├── catalog/                # PetTypeCatalog
-│       └── service/                # package-private impls, exposed via AllQueryServiceFactory
+│       ├── usecase/                # OwnerFindUseCase, OwnerSearchUseCase (shared by REST + SSR)
+│       │   └── ssr/                # OwnerEditFormUseCase, OwnerNameUseCase, PetEditFormUseCase, VisitCreateFormUseCase (SSR forms only)
+│       ├── view/
+│       │   ├── owner/              # OwnerListView, OwnerDetailsView
+│       │   │   └── ssr/            # OwnerNameView, OwnerEditView
+│       │   ├── pet/                # PetDetailsView
+│       │   │   └── ssr/            # PetEditView
+│       │   └── visit/              # VisitView
+│       │       └── ssr/            # VisitCreateView
+│       ├── repository/             # read ports: OwnerFindRepository, OwnerSearchRepository
+│       │   └── ssr/                # OwnerEditFormRepository, OwnerNameRepository, PetEditFormRepository, VisitCreateFormRepository
+│       ├── catalog/
+│       │   └── ssr/                # PetTypeCatalog
+│       └── service/                # package-private impls, exposed via QueryServiceFactory
+│           └── ssr/                # package-private impls, exposed via SsrQueryServiceFactory
 ├── infrastructure/
-│   ├── command/
-│   │   └── support/                # ConstraintViolationTranslator<T> + per-entity constraint maps
-│   ├── query/
+│   ├── command/                     # JdbcClient impls: OwnerCreateRepositoryImpl, OwnerUpdateRepositoryImpl, PetCreateRepositoryImpl, PetUpdateRepositoryImpl, VisitCreateRepositoryImpl — exposed via CommandRepositoryFactory
+│   │   └── support/                 # ConstraintViolationTranslator<T> (+ nested ExceptionFactory<T>) + per-entity constraint maps
+│   ├── query/                      # JdbcClient impls: OwnerFindRepositoryImpl, OwnerSearchRepositoryImpl — exposed via QueryRepositoryFactory
+│   │   ├── ssr/                    # OwnerEditFormRepositoryImpl, OwnerNameRepositoryImpl, PetEditFormRepositoryImpl, VisitCreateFormRepositoryImpl — exposed via SsrQueryRepositoryFactory
 │   │   ├── support/                # ViewExtractor — shared ResultSet → view mapping
-│   │   └── catalog/                # PetTypeCatalog JDBC adapter
-│   └── bootstrap/                  # @Configuration: wires factories into Spring beans, PostgresConfig
+│   │   └── catalog/
+│   │       └── ssr/                # PetTypeCatalogImpl — exposed via PetTypeCatalogFactory
+│   └── bootstrap/                  # @Configuration: QueryServiceConfig, QueryRepositoryConfig, CommandServiceConfig, CommandRepositoryConfig
 ├── presentation/
 │   ├── rest/
-│   │   ├── request/                # CreateOwnerRequest, UpdatePetRequest, CreateVisitRequest...
-│   │   ├── command/                # RestOwnerCommandController, RestPetCommandController...
-│   │   ├── query/                  # RestOwnerQueryController — returns application views directly as JSON
+│   │   ├── request/                # OwnerRequest, PetRequest, VisitRequest (shared by create + update)
+│   │   ├── command/                # OwnerCommandController, PetCommandController, VisitCommandController
+│   │   ├── query/                  # OwnerQueryController — returns application views directly as JSON
 │   │   └── RestExceptionHandler.java
 │   └── ssr/
 │       ├── dto/                    # OwnerFormDto, PetFormDto, VisitFormDto (mutable, form binding)
-│       ├── query/                  # SsrOwnerQueryController, SsrPetQueryController, SsrVisitQueryController
-│       ├── command/                # SsrOwnerCommandController, SsrPetCommandController, SsrVisitCommandController
-│       ├── SsrWelcomeController.java
+│       ├── query/                  # WelcomeController, OwnerQueryController, PetQueryController, VisitQueryController
+│       ├── command/                # OwnerCommandController, PetCommandController, VisitCommandController
 │       └── SsrExceptionHandler.java
 └── shared/
     ├── pagination/                 # PageQuery, PageResult, OwnerSearchCriteria
+    ├── ValidationMessages.java     # shared regex/message constants used by REST requests + SSR DTOs
     └── SqlLoader.java              # classpath .sql resource loader
 ```
+
+> REST and SSR controllers with the same simple name (e.g. `OwnerCommandController`)
+> live in different packages (`presentation.rest.command` vs.
+> `presentation.ssr.command`) and are registered under different Spring bean
+> names — see *Two UIs, one core* above.
 
 ## Running the Application
 

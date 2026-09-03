@@ -1,10 +1,10 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.query;
 
-import dev.dmitriirussu.petclinic.application.query.catalog.SsrPetTypeCatalog;
-import dev.dmitriirussu.petclinic.application.query.usecase.SsrOwnerNameUseCase;
-import dev.dmitriirussu.petclinic.application.query.usecase.SsrPetEditFormUseCase;
-import dev.dmitriirussu.petclinic.application.query.view.owner.SsrOwnerNameView;
-import dev.dmitriirussu.petclinic.application.query.view.pet.SsrPetEditView;
+import dev.dmitriirussu.petclinic.application.query.catalog.ssr.PetTypeCatalog;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.OwnerNameUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.PetEditFormUseCase;
+import dev.dmitriirussu.petclinic.application.query.view.owner.ssr.OwnerNameView;
+import dev.dmitriirussu.petclinic.application.query.view.pet.ssr.PetEditView;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.PetFormDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -20,13 +20,13 @@ import java.util.List;
 @RequestMapping("/pets")
 @Controller("ssrPetQueryController")
 public class PetQueryController {
-    private final SsrPetEditFormUseCase petFormUseCase;
-    private final SsrOwnerNameUseCase ownerNameUseCase;
-    private final SsrPetTypeCatalog catalog;
+    private final PetEditFormUseCase petFormUseCase;
+    private final OwnerNameUseCase ownerNameUseCase;
+    private final PetTypeCatalog catalog;
 
     @GetMapping("/new")
     public String showNewPetForm(Model model, @RequestParam String ownerId) {
-        SsrOwnerNameView owner = ownerNameUseCase.getOwnerName(ownerId);
+        OwnerNameView owner = ownerNameUseCase.findOwnerName(ownerId);
         List<String> petTypes = catalog.getAllTypes();
         PetFormDto form = new PetFormDto();
         form.setOwnerId(ownerId);
@@ -43,7 +43,7 @@ public class PetQueryController {
 
     @GetMapping("/{petId}/edit")
     public String showEditPetForm(@PathVariable String petId, Model model) {
-        SsrPetEditView pet = petFormUseCase.getPetEditForm(petId);
+        PetEditView pet = petFormUseCase.findPetEditForm(petId);
         List<String> petTypes = catalog.getAllTypes();
         model.addAttribute("ownerFirstName", pet.firstName());
         model.addAttribute("ownerLastName", pet.lastName());

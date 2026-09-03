@@ -1,6 +1,6 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.dto;
 
-import dev.dmitriirussu.petclinic.application.query.view.owner.SsrOwnerEditView;
+import dev.dmitriirussu.petclinic.application.query.view.owner.ssr.OwnerEditView;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
@@ -40,7 +40,7 @@ public class OwnerFormDto {
         this.telephone = telephone;
     }
 
-    public static OwnerFormDto from(SsrOwnerEditView view) {
+    public static OwnerFormDto from(OwnerEditView view) {
         return new OwnerFormDto(
                 view.firstName(),
                 view.lastName(),

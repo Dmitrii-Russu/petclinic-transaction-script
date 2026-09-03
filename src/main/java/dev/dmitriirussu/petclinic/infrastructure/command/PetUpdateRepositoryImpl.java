@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.infrastructure.command;
 
 import dev.dmitriirussu.petclinic.infrastructure.command.support.PetConstraintViolationTranslator;
-import dev.dmitriirussu.petclinic.shared.SqlLoader;
+import dev.dmitriirussu.petclinic.infrastructure.SqlLoader;
 import dev.dmitriirussu.petclinic.model.Pet;
 import dev.dmitriirussu.petclinic.application.command.repository.PetUpdateRepository;
 import lombok.RequiredArgsConstructor;
@@ -29,10 +29,10 @@ class PetUpdateRepositoryImpl implements PetUpdateRepository {
          * "Optimistic duplicate pre-check via cache".
          *
          * Symmetric with OwnerUpdateRepositoryImpl: the "pet" cache is keyed
-         * both by id and by the uq_pet_owner business key, so the previous
+         * both by id and by the uq_pet_identity business key, so the previous
          * business key is available from the cache without an extra DB read,
          * and the stale entry under the old key gets evicted after a
-         * successful write. DB UNIQUE(uq_pet_owner) remains authoritative;
+         * successful write. DB UNIQUE(uq_pet_identity) remains authoritative;
          * a cache hit here only avoids an avoidable round-trip, see:
          * https://dmitrii-russu.github.io/posts/cache-pre-filter/
          */

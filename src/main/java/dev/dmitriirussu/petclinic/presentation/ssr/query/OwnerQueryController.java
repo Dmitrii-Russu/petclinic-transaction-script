@@ -1,13 +1,13 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.query;
 
-import dev.dmitriirussu.petclinic.application.query.usecase.FindOwnerListUseCase;
-import dev.dmitriirussu.petclinic.application.query.usecase.FindOwnerUseCase;
-import dev.dmitriirussu.petclinic.application.query.usecase.SsrOwnerEditFormUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.OwnerFindUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.OwnerSearchUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.OwnerEditFormUseCase;
 import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerDetailsView;
 import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerListView;
-import dev.dmitriirussu.petclinic.application.query.view.owner.SsrOwnerEditView;
+import dev.dmitriirussu.petclinic.application.query.view.owner.ssr.OwnerEditView;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.OwnerFormDto;
-import dev.dmitriirussu.petclinic.shared.pagination.OwnerSearchCriteria;
+import dev.dmitriirussu.petclinic.application.query.OwnerSearchCriteria;
 import dev.dmitriirussu.petclinic.shared.pagination.PageQuery;
 import dev.dmitriirussu.petclinic.shared.pagination.PageResult;
 import jakarta.validation.constraints.Min;
@@ -22,9 +22,9 @@ import org.springframework.web.bind.annotation.*;
 public class OwnerQueryController {
     private static final int PAGE_SIZE = 5;
 
-    private final FindOwnerUseCase findOwnerUseCase;
-    private final FindOwnerListUseCase findOwnerListUseCase;
-    private final SsrOwnerEditFormUseCase ownerFormUseCase;
+    private final OwnerFindUseCase ownerFindUseCase;
+    private final OwnerSearchUseCase ownerSearchUseCase;
+    private final OwnerEditFormUseCase ownerFormUseCase;
 
     // --- Search ---
     @GetMapping
@@ -42,7 +42,7 @@ public class OwnerQueryController {
     ) {
         var criteria = new OwnerSearchCriteria(lastName);
         var query = new PageQuery(page, PAGE_SIZE);
-        PageResult<OwnerListView> result = findOwnerListUseCase.findOwnerList(criteria, query);
+        PageResult<OwnerListView> result = ownerSearchUseCase.search(criteria, query);
 
         if (page > result.totalPages() && result.total() > 0) {
             model.addAttribute("error", "Invalid page number");
@@ -68,13 +68,13 @@ public class OwnerQueryController {
     }
 
     // --- Details ---
-    @GetMapping("/{ownerId}")
+    @GetMapping("/{id}")
     public String showOwnerDetails(
-            @PathVariable String ownerId,
+            @PathVariable String id,
             @ModelAttribute("message") String message,
             Model model
     ) {
-        OwnerDetailsView owner = findOwnerUseCase.findByOwnerId(ownerId);
+        OwnerDetailsView owner = ownerFindUseCase.findById(id);
         model.addAttribute("owner", owner);
         model.addAttribute("message", message);
         return "owner/result/owner-details";
@@ -91,7 +91,7 @@ public class OwnerQueryController {
 
     @GetMapping("/{ownerId}/edit")
     public String showEditOwnerForm(@PathVariable String ownerId, Model model) {
-        SsrOwnerEditView view = ownerFormUseCase.getOwnerEditForm(ownerId);
+        OwnerEditView view = ownerFormUseCase.findOwnerEditForm(ownerId);
         model.addAttribute("ownerForm", OwnerFormDto.from(view));
         model.addAttribute("ownerId", ownerId);
         model.addAttribute("error", "");

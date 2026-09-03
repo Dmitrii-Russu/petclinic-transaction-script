@@ -4,7 +4,7 @@ import dev.dmitriirussu.petclinic.application.command.model.PetCreateCommand;
 import dev.dmitriirussu.petclinic.application.command.model.PetUpdateCommand;
 import dev.dmitriirussu.petclinic.application.command.usecase.PetCreateUseCase;
 import dev.dmitriirussu.petclinic.application.command.usecase.PetUpdateUseCase;
-import dev.dmitriirussu.petclinic.application.query.catalog.SsrPetTypeCatalog;
+import dev.dmitriirussu.petclinic.application.query.catalog.ssr.PetTypeCatalog;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.PetFormDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 public class PetCommandController {
     private final PetCreateUseCase createPetUseCase;
     private final PetUpdateUseCase updatePetUseCase;
-    private final SsrPetTypeCatalog catalog;
+    private final PetTypeCatalog catalog;
 
     @PostMapping("/new")
     public String createPet(

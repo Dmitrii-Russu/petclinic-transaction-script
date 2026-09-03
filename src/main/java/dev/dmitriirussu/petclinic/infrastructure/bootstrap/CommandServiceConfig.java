@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.infrastructure.bootstrap;
 
 import dev.dmitriirussu.petclinic.application.command.repository.*;
-import dev.dmitriirussu.petclinic.application.command.service.AllCommandServiceFactory;
+import dev.dmitriirussu.petclinic.application.command.service.CommandServiceFactory;
 import dev.dmitriirussu.petclinic.application.command.usecase.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -10,27 +10,27 @@ import org.springframework.context.annotation.Configuration;
 class CommandServiceConfig {
 
     @Bean
-    OwnerCreateUseCase createOwnerUseCase(OwnerCreateRepository createRepository) {
-        return AllCommandServiceFactory.createOwnerUseCase(createRepository);
+    OwnerCreateUseCase ownerCreateUseCase(OwnerCreateRepository createRepository) {
+        return CommandServiceFactory.ownerCreateUseCase(createRepository);
     }
 
     @Bean
-    OwnerUpdateUseCase updateOwnerUseCase(OwnerUpdateRepository updateRepository) {
-        return AllCommandServiceFactory.updateOwnerUseCase(updateRepository);
+    OwnerUpdateUseCase ownerUpdateUseCase(OwnerUpdateRepository updateRepository) {
+        return CommandServiceFactory.ownerUpdateUseCase(updateRepository);
     }
 
     @Bean
-    PetCreateUseCase createPetUseCase(PetCreateRepository createRepository) {
-        return AllCommandServiceFactory.createPetUseCase(createRepository);
+    PetCreateUseCase petCreateUseCase(PetCreateRepository createRepository) {
+        return CommandServiceFactory.petCreateUseCase(createRepository);
     }
 
     @Bean
-    PetUpdateUseCase updatePetUseCase(PetUpdateRepository updateRepository) {
-        return AllCommandServiceFactory.updatePetUseCase(updateRepository);
+    PetUpdateUseCase petUpdateUseCase(PetUpdateRepository updateRepository) {
+        return CommandServiceFactory.petUpdateUseCase(updateRepository);
     }
 
     @Bean
-    VisitCreateUseCase createVisitUseCase(VisitCreateRepository createRepository) {
-        return AllCommandServiceFactory.createVisitUseCase(createRepository);
+    VisitCreateUseCase visitCreateUseCase(VisitCreateRepository createRepository) {
+        return CommandServiceFactory.visitCreateUseCase(createRepository);
     }
 }

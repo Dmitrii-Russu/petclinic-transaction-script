@@ -1,9 +1,14 @@
 package dev.dmitriirussu.petclinic.infrastructure.bootstrap;
 
-import dev.dmitriirussu.petclinic.application.query.catalog.SsrPetTypeCatalog;
+import dev.dmitriirussu.petclinic.application.query.catalog.ssr.PetTypeCatalog;
 import dev.dmitriirussu.petclinic.application.query.repository.*;
-import dev.dmitriirussu.petclinic.infrastructure.query.AllQueryRepositoryFactory;
-import dev.dmitriirussu.petclinic.infrastructure.query.catalog.PetTypeCatalogFactory;
+import dev.dmitriirussu.petclinic.application.query.repository.ssr.OwnerEditFormRepository;
+import dev.dmitriirussu.petclinic.application.query.repository.ssr.OwnerNameRepository;
+import dev.dmitriirussu.petclinic.application.query.repository.ssr.PetEditFormRepository;
+import dev.dmitriirussu.petclinic.application.query.repository.ssr.VisitCreateFormRepository;
+import dev.dmitriirussu.petclinic.infrastructure.query.QueryRepositoryFactory;
+import dev.dmitriirussu.petclinic.infrastructure.query.catalog.ssr.PetTypeCatalogFactory;
+import dev.dmitriirussu.petclinic.infrastructure.query.ssr.SsrQueryRepositoryFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.simple.JdbcClient;
@@ -12,37 +17,37 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 class QueryRepositoryConfig {
 
     @Bean
-    FindOwnerRepository findOwnerRepository(JdbcClient jdbc) {
-        return AllQueryRepositoryFactory.findOwnerRepository(jdbc);
+    OwnerFindRepository ownerFindRepository(JdbcClient jdbc) {
+        return QueryRepositoryFactory.ownerFindRepository(jdbc);
     }
 
     @Bean
-    FindOwnerListRepository findOwnerListRepository(JdbcClient jdbc) {
-        return AllQueryRepositoryFactory.findOwnerListRepository(jdbc);
+    OwnerSearchRepository ownerSearchRepository(JdbcClient jdbc) {
+        return QueryRepositoryFactory.ownerSearchRepository(jdbc);
     }
 
     @Bean
-    SsrOwnerEditFormRepository ssrOwnerEditFormRepository(JdbcClient jdbc) {
-        return AllQueryRepositoryFactory.ssrOwnerEditFormRepository(jdbc);
+    OwnerEditFormRepository ssrOwnerEditFormRepository(JdbcClient jdbc) {
+        return SsrQueryRepositoryFactory.ownerEditFormRepository(jdbc);
     }
 
     @Bean
-    SsrOwnerNameRepository ssrOwnerNameRepository(JdbcClient jdbc) {
-        return AllQueryRepositoryFactory.ssrOwnerNameRepository(jdbc);
+    OwnerNameRepository ssrOwnerNameRepository(JdbcClient jdbc) {
+        return SsrQueryRepositoryFactory.ownerNameRepository(jdbc);
     }
 
     @Bean
-    SsrPetEditFormRepository ssrPetEditFormRepository(JdbcClient jdbc) {
-        return AllQueryRepositoryFactory.ssrPetEditFormRepository(jdbc);
+    PetEditFormRepository ssrPetEditFormRepository(JdbcClient jdbc) {
+        return SsrQueryRepositoryFactory.petEditFormRepository(jdbc);
     }
 
     @Bean
-    SsrVisitCreateFormRepository ssrVisitCreateFormRepository(JdbcClient jdbc) {
-        return AllQueryRepositoryFactory.ssrVisitCreateFormRepository(jdbc);
+    VisitCreateFormRepository ssrVisitCreateFormRepository(JdbcClient jdbc) {
+        return SsrQueryRepositoryFactory.visitCreateFormRepository(jdbc);
     }
 
     @Bean
-    SsrPetTypeCatalog petTypeCatalog(JdbcClient jdbc) {
+    PetTypeCatalog petTypeCatalog(JdbcClient jdbc) {
         return PetTypeCatalogFactory.petTypeCatalog(jdbc);
     }
 }

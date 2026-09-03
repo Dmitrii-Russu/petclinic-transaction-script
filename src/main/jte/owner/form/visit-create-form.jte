@@ -1,4 +1,4 @@
-@param dev.dmitriirussu.petclinic.application.query.view.visit.SsrVisitCreateView visitForm
+@param dev.dmitriirussu.petclinic.application.query.view.visit.ssr.VisitCreateView visitForm
 @param dev.dmitriirussu.petclinic.presentation.ssr.dto.VisitFormDto form
 @param String error
 

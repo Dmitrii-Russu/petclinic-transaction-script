@@ -35,19 +35,3 @@ CREATE TABLE visits (
     pet_id      TEXT  NOT NULL CONSTRAINT fk_visit_pet REFERENCES pets(id) ON DELETE CASCADE,
     CONSTRAINT uq_visit_pet_date UNIQUE (pet_id, visit_date)
 );
-
-CREATE TABLE specialties (
-    name VARCHAR(50) PRIMARY KEY
-);
-
-CREATE TABLE vets (
-    id         VARCHAR(36) PRIMARY KEY,
-    first_name VARCHAR(50) NOT NULL,
-    last_name  VARCHAR(50) NOT NULL
-);
-
-CREATE TABLE vet_specialties (
-    vet_id         VARCHAR(36) NOT NULL REFERENCES vets(id) ON DELETE CASCADE,
-    specialty_name VARCHAR(50) NOT NULL REFERENCES specialties(name),
-    PRIMARY KEY (vet_id, specialty_name)
-);

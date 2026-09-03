@@ -1,7 +1,7 @@
 package dev.dmitriirussu.petclinic.infrastructure.bootstrap;
 
 import dev.dmitriirussu.petclinic.application.command.repository.*;
-import dev.dmitriirussu.petclinic.infrastructure.command.AllCommandRepositoryFactory;
+import dev.dmitriirussu.petclinic.infrastructure.command.CommandRepositoryFactory;
 import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -15,7 +15,7 @@ class CommandRepositoryConfig {
             JdbcClient jdbc,
             CacheManager cacheManager
     ) {
-        return AllCommandRepositoryFactory.ownerCreateRepository(jdbc, cacheManager);
+        return CommandRepositoryFactory.ownerCreateRepository(jdbc, cacheManager);
     }
 
     @Bean
@@ -23,7 +23,7 @@ class CommandRepositoryConfig {
             JdbcClient jdbc,
             CacheManager cacheManager
             ) {
-        return AllCommandRepositoryFactory.ownerUpdateRepository(jdbc, cacheManager);
+        return CommandRepositoryFactory.ownerUpdateRepository(jdbc, cacheManager);
     }
 
     @Bean
@@ -31,7 +31,7 @@ class CommandRepositoryConfig {
             JdbcClient jdbc,
             CacheManager cacheManager
     ) {
-        return AllCommandRepositoryFactory.petCreateRepository(jdbc, cacheManager);
+        return CommandRepositoryFactory.petCreateRepository(jdbc, cacheManager);
     }
 
     @Bean
@@ -39,7 +39,7 @@ class CommandRepositoryConfig {
             JdbcClient jdbc,
             CacheManager cacheManager
     ) {
-        return AllCommandRepositoryFactory.petUpdateRepository(jdbc, cacheManager);
+        return CommandRepositoryFactory.petUpdateRepository(jdbc, cacheManager);
     }
 
     @Bean
@@ -47,6 +47,6 @@ class CommandRepositoryConfig {
             JdbcClient jdbc,
             CacheManager cacheManager
     ) {
-        return AllCommandRepositoryFactory.visitCreateRepository(jdbc, cacheManager);
+        return CommandRepositoryFactory.visitCreateRepository(jdbc, cacheManager);
     }
 }

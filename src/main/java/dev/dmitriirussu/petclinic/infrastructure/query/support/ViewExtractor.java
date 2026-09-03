@@ -3,8 +3,8 @@ package dev.dmitriirussu.petclinic.infrastructure.query.support;
 import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerDetailsView;
 import dev.dmitriirussu.petclinic.application.query.view.owner.OwnerListView;
 import dev.dmitriirussu.petclinic.application.query.view.pet.PetDetailsView;
-import dev.dmitriirussu.petclinic.application.query.view.visit.SsrVisitCreateView;
 import dev.dmitriirussu.petclinic.application.query.view.visit.VisitView;
+import dev.dmitriirussu.petclinic.application.query.view.visit.ssr.VisitCreateView;
 import tools.jackson.core.JacksonException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.ObjectMapper;
@@ -54,13 +54,13 @@ public final class ViewExtractor {
         return new OwnerListView(id, firstName, lastName, street, city, telephone, petNames);
     }
 
-    public static SsrVisitCreateView getVisitCreateForm(ResultSet rs, int rowNum) throws SQLException {
+    public static VisitCreateView getVisitCreateForm(ResultSet rs, int rowNum) throws SQLException {
         try {
             List<VisitView> visits = OBJECT_MAPPER.readValue(
                     rs.getString("visits_json"),
                     new TypeReference<List<VisitView>>() {}
             );
-            return new SsrVisitCreateView(
+            return new VisitCreateView(
                     rs.getString("pet_id"),
                     rs.getString("pet_name"),
                     rs.getDate("birth_date").toLocalDate(),

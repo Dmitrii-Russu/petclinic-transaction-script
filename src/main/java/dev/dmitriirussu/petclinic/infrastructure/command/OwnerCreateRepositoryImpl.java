@@ -2,7 +2,7 @@ package dev.dmitriirussu.petclinic.infrastructure.command;
 
 import dev.dmitriirussu.petclinic.application.command.repository.OwnerCreateRepository;
 import dev.dmitriirussu.petclinic.infrastructure.command.support.OwnerConstraintViolationTranslator;
-import dev.dmitriirussu.petclinic.shared.SqlLoader;
+import dev.dmitriirussu.petclinic.infrastructure.SqlLoader;
 import dev.dmitriirussu.petclinic.model.Owner;
 import lombok.RequiredArgsConstructor;
 import org.springframework.cache.Cache;

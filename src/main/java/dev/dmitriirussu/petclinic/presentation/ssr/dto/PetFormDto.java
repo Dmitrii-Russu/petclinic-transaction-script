@@ -1,6 +1,6 @@
 package dev.dmitriirussu.petclinic.presentation.ssr.dto;
 
-import dev.dmitriirussu.petclinic.application.query.view.pet.SsrPetEditView;
+import dev.dmitriirussu.petclinic.application.query.view.pet.ssr.PetEditView;
 
 import java.time.LocalDate;
 import jakarta.validation.constraints.*;
@@ -34,7 +34,7 @@ public class PetFormDto {
 
     public PetFormDto() {}
 
-    public static PetFormDto from(SsrPetEditView view) {
+    public static PetFormDto from(PetEditView view) {
         PetFormDto dto = new PetFormDto();
         dto.name           = view.name();
         dto.birthDate      = view.birthDate();

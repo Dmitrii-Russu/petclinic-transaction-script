@@ -2,7 +2,7 @@ package dev.dmitriirussu.petclinic.presentation.ssr.command;
 
 import dev.dmitriirussu.petclinic.application.command.model.VisitCreateCommand;
 import dev.dmitriirussu.petclinic.application.command.usecase.VisitCreateUseCase;
-import dev.dmitriirussu.petclinic.application.query.usecase.SsrVisitCreateFormUseCase;
+import dev.dmitriirussu.petclinic.application.query.usecase.ssr.VisitCreateFormUseCase;
 import dev.dmitriirussu.petclinic.presentation.ssr.dto.VisitFormDto;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 @Controller("ssrVisitCommandController")
 public class VisitCommandController {
     private final VisitCreateUseCase createVisitUseCase;
-    private final SsrVisitCreateFormUseCase visitFormUseCase;
+    private final VisitCreateFormUseCase visitFormUseCase;
 
     @PostMapping("/new")
     public String createVisit(
@@ -33,7 +33,7 @@ public class VisitCommandController {
             RedirectAttributes redirectAttributes
     ) {
         if (binding.hasErrors()) {
-            model.addAttribute("visitForm", visitFormUseCase.getVisitCreateForm(petId));
+            model.addAttribute("visitForm", visitFormUseCase.findVisitCreateForm(petId));
             model.addAttribute("form", form);
             model.addAttribute("error", errorMessage(binding));
             return "owner/form/visit-create-form";
