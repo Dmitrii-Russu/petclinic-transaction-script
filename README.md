@@ -6,6 +6,11 @@ Another PetClinic? Yes — deliberately. It's the most recognizable teaching
 domain in the Java ecosystem, so there's no need to explain what the app does.
 We can go straight to how it's built.
 
+> **Status: actively evolving.** The architecture and the decisions behind
+> it are the current focus and are considered stable; automated tests, CI,
+> and Testcontainers are next — see [Status](#status) below for what's
+> already guaranteed vs. what's planned.
+
 **Highlights:**
 - CQRS carried through at the **package** level, not just the class level
 - Physical layer isolation — package-private implementations, exposed only
@@ -400,6 +405,13 @@ direct links to a pet or visit by UUID anywhere in the interface.
 
 ## Status
 
-Not yet implemented: automated tests (unit/slice/integration/E2E/ArchUnit),
-CI pipeline, containerized test database (Testcontainers planned to replace
-embedded PostgreSQL for the run-time datasource).
+**Actively evolving.** The core is done: package-enforced layer isolation,
+CQRS split, single-query aggregate hydration, cache pre-filtering — these are
+the decisions this README exists to explain, and they're stable.
+
+What's next, roughly in order:
+- automated tests (unit/slice/integration/E2E)
+- ArchUnit tests turning the layer-isolation and CQRS-independence rules
+  (already enforced by the compiler) into an automated regression check
+- CI pipeline
+- Testcontainers, replacing embedded PostgreSQL for the run-time datasource
