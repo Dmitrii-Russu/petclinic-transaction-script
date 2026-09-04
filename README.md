@@ -207,6 +207,7 @@ hand-rolled in-memory graph assembly per aggregate. This intentionally couples
 the read side to PostgreSQL-specific JSON functions; the trade-off accepted
 here is fewer classes and one round trip, in exchange for not being portable
 to another RDBMS — acceptable since PostgreSQL is the only target.
+
 A portable alternative exists — assembling the graph manually in application
 code via an accumulator pattern (`computeIfAbsent`/`LinkedHashMap` at each
 graph level) works identically on any RDBMS, at the cost of intermediate
