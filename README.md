@@ -159,10 +159,19 @@ conflict — with no extra check queries before or after the write.
 
 ### Persistence
 
-**No ORM — `JdbcClient`.** The persistence layer is built on `JdbcClient`
-(Spring 6.1+) instead of `JdbcTemplate` or JPA/Hibernate. SQL lives in
-`.sql` resource files under `src/main/resources/sql/{command,query}`, loaded
-once into `static final String` constants via `SqlLoader`.
+**No ORM — JdbcClient.** ORMs handle full entity graphs well via identity-graph 
+loading (e.g. `@EntityGraph`), but that only controls *how* the graph is loaded, 
+not *what shape* the result takes. `OwnerListView` needs pet names only, not full 
+`Pet`/`Visit` entities — no `@EntityGraph` configuration produces that shape directly, 
+because loading and projection are different responsibilities. Rather than fight that 
+mismatch on top of an ORM, the persistence layer is built on JdbcClient (Spring 6.1+) 
+instead of JdbcTemplate or JPA/Hibernate, with the application assembling exactly the 
+shape each read model needs. For the full reasoning — and how this compares to jOOQ's 
+MULTISET and Blaze Persistence's Entity Views as alternative ways to solve the same 
+problem — see [JPA handles full graphs well. What about partial ones?](https://dmitrii-russu.github.io/posts/jpa-partial-graphs/).
+
+SQL lives in `.sql` resource files under `src/main/resources/sql/{command,query}`, 
+loaded once into `static final String` constants via `SqlLoader`.
 
 **Reading an aggregate — single-query hydration.** `OwnerDetailsView` (an
 owner plus their pets plus each pet's visits) is assembled with one SQL query
