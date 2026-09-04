@@ -23,10 +23,15 @@ and read."
 
 There is no business logic in the application — only CRUD operations on
 owners, pets, and visits. A rich domain model earns its keep when there are
-invariants and behavior worth encapsulating in an entity; there's no such
-behavior here. Complicating the model for its own sake contradicts the
-"simple code" goal, so a Transaction Script was chosen instead: `Owner`,
-`Pet`, `Visit` are plain `record`s, with no methods and no state.
+invariants and behavior worth encapsulating in an entity — specifically, when
+an operation needs the aggregate's current state to decide whether a new
+state is valid. None of the three invariants here require that: each is a
+structural existence/uniqueness check, fully determined by input, not by
+state already held in memory. Complicating the model for its own sake
+contradicts the "simple code" goal, so a Transaction Script was chosen
+instead: `Owner`, `Pet`, `Visit` are plain `record`s, with no methods and no
+state. See ["The service is getting bloated" — move the logic into the entity? Here's the real criterion](https://dmitrii-russu.github.io/posts/aggregate-loading-criterion/)
+for the full reasoning behind this criterion.
 
 ## Architecture
 
@@ -47,6 +52,13 @@ class level:
 | Infrastructure | `infrastructure.command(.support)`, `infrastructure.query(.ssr)(.support)`, `infrastructure.query.catalog.ssr`, `infrastructure.bootstrap` | JDBC adapters via `JdbcClient` (no ORM), mirroring the same base/`.ssr` split as the query side, plus Spring wiring (`@Configuration` classes exposing only interfaces as beans). |
 | Presentation | `presentation.rest.*`, `presentation.ssr.*` | REST controllers (JSON) and SSR controllers (JTE templates), both on top of the same use cases. |
 | Shared | `shared.pagination`, `shared.ValidationMessages`, `shared.SqlLoader` | `PageQuery`, `PageResult`, `OwnerSearchCriteria` — cross-cutting pagination/search types — shared Bean Validation regex/message constants, and a small loader that reads `.sql` resources into constants. |
+
+`PageQuery` and `PageResult` are plain records owned by the application
+layer, not `org.springframework.data.domain.Pageable` — use-case and
+controller code describe what the application needs (a page number, a page
+size, a total) rather than the API of the persistence framework underneath.
+See [Why I stopped exposing Spring Pageable in application layer contracts](https://dmitrii-russu.github.io/posts/spring-pageable/)
+for the reasoning behind this choice.
 
 **What's already guaranteed vs. what's planned.** Layer isolation is enforced
 today, physically, by package-private `*ServiceImpl` / `*RepositoryImpl`
@@ -112,7 +124,11 @@ All three are delegated to unique constraints in the database rather than
 in-code existence checks: an in-memory or extra-query check degrades at scale
 and doesn't protect against TOCTOU. The SQL exception is caught at the
 `infrastructure.command` boundary and translated into a standard Java
-exception — only that exception is visible further up the call stack.
+exception — only that exception is visible further up the call stack. All
+three are structural invariants under concurrent-write risk, which is
+precisely the case where database-level protection is not optional — see
+[Criteria for Placing Validation in an Application](https://dmitrii-russu.github.io/posts/validation-placement/)
+for the general framework behind this decision.
 
 **Optimistic duplicate pre-check via cache.** Before writing to the database,
 `OwnerCreateRepositoryImpl`, `OwnerUpdateRepositoryImpl`,
@@ -159,19 +175,28 @@ conflict — with no extra check queries before or after the write.
 
 ### Persistence
 
-**No ORM — JdbcClient.** ORMs handle full entity graphs well via identity-graph 
-loading (e.g. `@EntityGraph`), but that only controls *how* the graph is loaded, 
-not *what shape* the result takes. `OwnerListView` needs pet names only, not full 
-`Pet`/`Visit` entities — no `@EntityGraph` configuration produces that shape directly, 
-because loading and projection are different responsibilities. Rather than fight that 
-mismatch on top of an ORM, the persistence layer is built on JdbcClient (Spring 6.1+) 
-instead of JdbcTemplate or JPA/Hibernate, with the application assembling exactly the 
-shape each read model needs. For the full reasoning — and how this compares to jOOQ's 
-MULTISET and Blaze Persistence's Entity Views as alternative ways to solve the same 
-problem — see [JPA handles full graphs well. What about partial ones?](https://dmitrii-russu.github.io/posts/jpa-partial-graphs/).
+**No ORM — JdbcClient.** ORMs handle full entity graphs well via
+identity-graph loading (e.g. `@EntityGraph`), but that only controls *how*
+the graph is loaded, not *what shape* the result takes. `OwnerListView` needs
+pet names only, not full `Pet`/`Visit` entities — no `@EntityGraph`
+configuration produces that shape directly, because loading and projection
+are different responsibilities. Rather than fight that mismatch on top of an
+ORM, the persistence layer is built on JdbcClient (Spring 6.1+) instead of
+JdbcTemplate or JPA/Hibernate, with the application assembling exactly the
+shape each read model needs. For the full reasoning — and how this compares
+to jOOQ's MULTISET and Blaze Persistence's Entity Views as alternative ways
+to solve the same problem — see [JPA handles full graphs well. What about partial ones?](https://dmitrii-russu.github.io/posts/jpa-partial-graphs/).
 
-SQL lives in `.sql` resource files under `src/main/resources/sql/{command,query}`, 
+SQL lives in `.sql` resource files under `src/main/resources/sql/{command,query}`,
 loaded once into `static final String` constants via `SqlLoader`.
+
+**No collection in the parent model.** `Owner` does not hold a `List<Pet>`,
+nor does `Pet` hold a `List<Visit>` — removing such a collection and
+replacing it with a separate query breaks no invariant here, since nothing
+requires atomic consistency across the group at the model level. The nested
+shape needed for `OwnerDetailsView` is assembled only on the read side, via
+SQL, not carried as model state. See
+[One-to-Many in Java: When a Collection in the Parent Is Justified — and When It Is Not](https://dmitrii-russu.github.io/posts/fk-mapping/).
 
 **Reading an aggregate — single-query hydration.** `OwnerDetailsView` (an
 owner plus their pets plus each pet's visits) is assembled with one SQL query
