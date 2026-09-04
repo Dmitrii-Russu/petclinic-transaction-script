@@ -207,6 +207,15 @@ hand-rolled in-memory graph assembly per aggregate. This intentionally couples
 the read side to PostgreSQL-specific JSON functions; the trade-off accepted
 here is fewer classes and one round trip, in exchange for not being portable
 to another RDBMS — acceptable since PostgreSQL is the only target.
+A portable alternative exists — assembling the graph manually in application
+code via an accumulator pattern (`computeIfAbsent`/`LinkedHashMap` at each
+graph level) works identically on any RDBMS, at the cost of intermediate
+accumulator classes and manual deduplication. It wasn't chosen here: with
+PostgreSQL as the only target, paying for portability that will never be
+exercised isn't worth trading away a single round trip for a multi-query or
+extra-class alternative. See the JDBC section of
+[JPA handles full graphs well. What about partial ones?](https://dmitrii-russu.github.io/posts/jpa-partial-graphs/)
+for that pattern in full.
 
 ### Models & errors
 
